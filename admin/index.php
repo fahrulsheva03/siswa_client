@@ -54,7 +54,7 @@ $total_siswa = $data_total['total'];
         <div class="col-md-4">
           <div class="card text-center p-3">
             <i class="bi bi-people-fill text-primary fs-1"></i>
-            <h5 class="mt-2 mb-0">Data Siswa</h5>
+            <h5 class="mt-2 mb-0">Data Siswa Tes</h5>
             <small class="text-muted"><?= $total_siswa ?></small>
           </div>
         </div>
