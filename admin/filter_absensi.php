@@ -1,42 +1,26 @@
 <?php
 require 'koneksi.php';
 
-$tipe = $_POST['tipe'];
+$tipe    = $_POST['tipe'];
 $tanggal = $_POST['tanggal'];
+$idKelas = isset($_POST['id_kelas']) ? $_POST['id_kelas'] : '';
 
 $where = "";
 
-// --------------------------
-// FILTER PER HARI
-// --------------------------
 if ($tipe == "hari") {
-
     if (!empty($tanggal)) {
         $where = "WHERE a.tanggal_232410 = '$tanggal'";
     }
-
-// --------------------------
-// FILTER PER MINGGU
-// --------------------------
 } elseif ($tipe == "minggu") {
-
     if (!empty($tanggal)) {
-        // Ambil minggu dalam tahun
         $minggu = date("W", strtotime($tanggal));
         $tahun  = date("Y", strtotime($tanggal));
 
         $where = "WHERE WEEK(a.tanggal_232410, 1) = '$minggu'
                   AND YEAR(a.tanggal_232410) = '$tahun'";
     }
-
-// --------------------------
-// FILTER PER BULAN
-// --------------------------
 } elseif ($tipe == "bulan") {
-
     if (!empty($tanggal)) {
-
-        // Format input "YYYY-MM"
         list($tahun, $bulan) = explode("-", $tanggal);
 
         $where = "WHERE MONTH(a.tanggal_232410) = '$bulan'
@@ -44,8 +28,15 @@ if ($tipe == "hari") {
     }
 }
 
+if (!empty($idKelas)) {
+    $idKelas = mysqli_real_escape_string($koneksi, $idKelas);
+    if ($where === "") {
+        $where = "WHERE s.kelas_232410 = '$idKelas'";
+    } else {
+        $where .= " AND s.kelas_232410 = '$idKelas'";
+    }
+}
 
-// Query data
 $query = mysqli_query($koneksi, "
     SELECT 
         a.id_absensi_232410,
@@ -86,6 +77,11 @@ if (mysqli_num_rows($query) > 0) {
             <td class='text-center'>{$row['tanggal_232410']}</td>
             <td class='text-center'>{$row['waktu_scan_232410']}</td>
             <td class='text-center'>{$badge}</td>
+            <td class='text-center'>
+                <a href='edit/absen.php?id={$row['id_absensi_232410']}' class='btn btn-warning btn-sm text-white'>
+                    <i class='bi bi-pencil-square'></i>
+                </a>
+            </td>
         </tr>
         ";
 
@@ -94,6 +90,6 @@ if (mysqli_num_rows($query) > 0) {
 } else {
     echo "
     <tr>
-        <td colspan='7' class='text-center'>Tidak ada data.</td>
+        <td colspan='8' class='text-center'>Tidak ada data.</td>
     </tr>";
 }

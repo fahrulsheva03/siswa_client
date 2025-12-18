@@ -4,44 +4,36 @@ require 'dompdf/autoload.inc.php';
 
 use Dompdf\Dompdf;
 
-$tipe = $_GET['tipe'] ?? 'hari';
-$tanggal = $_GET['tanggal'] ?? '';
+$tipe     = $_GET['tipe'] ?? 'hari';
+$tanggal  = $_GET['tanggal'] ?? '';
+$idKelas  = $_GET['id_kelas'] ?? '';
 
 $where = "";
 
-// --------------------------
-// FILTER PER HARI
-// --------------------------
 if ($tipe == "hari" && !empty($tanggal)) {
     $where = "WHERE a.tanggal_232410 = '$tanggal'";
-}
-
-// --------------------------
-// FILTER PER MINGGU
-// --------------------------
-elseif ($tipe == "minggu" && !empty($tanggal)) {
+} elseif ($tipe == "minggu" && !empty($tanggal)) {
     $minggu = date("W", strtotime($tanggal));
     $tahun  = date("Y", strtotime($tanggal));
 
     $where = "WHERE WEEK(a.tanggal_232410, 1) = '$minggu'
               AND YEAR(a.tanggal_232410) = '$tahun'";
-}
-
-// --------------------------
-// FILTER PER BULAN
-// --------------------------
-elseif ($tipe == "bulan" && !empty($tanggal)) {
-
+} elseif ($tipe == "bulan" && !empty($tanggal)) {
     list($tahun, $bulan) = explode("-", $tanggal);
 
     $where = "WHERE MONTH(a.tanggal_232410) = '$bulan'
               AND YEAR(a.tanggal_232410) = '$tahun'";
 }
 
+if (!empty($idKelas)) {
+    $idKelas = mysqli_real_escape_string($koneksi, $idKelas);
+    if ($where === "") {
+        $where = "WHERE s.kelas_232410 = '$idKelas'";
+    } else {
+        $where .= " AND s.kelas_232410 = '$idKelas'";
+    }
+}
 
-// --------------------------
-// QUERY FINAL
-// --------------------------
 $query = mysqli_query($koneksi, "
     SELECT 
         a.tanggal_232410,

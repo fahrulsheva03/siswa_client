@@ -59,6 +59,15 @@ if(isset($_SESSION['login']) == false){
                             <input type="text" name="mapel" class="form-control" placeholder="Contoh: Matematika" required>
                         </div>
 
+                        <!-- NAMA GURU -->
+                        <div class="col-md-4">
+                            <label class="form-label">Nama Guru</label>
+                            <input type="text" name="nama_guru" class="form-control" placeholder="Nama guru pengajar" required>
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-3">
                         <!-- HARI -->
                         <div class="col-md-4">
                             <label class="form-label">Hari</label>
@@ -72,7 +81,6 @@ if(isset($_SESSION['login']) == false){
                                 <option>Sabtu</option>
                             </select>
                         </div>
-
                     </div>
 
                     <!-- Jam -->
@@ -102,6 +110,17 @@ if(isset($_SESSION['login']) == false){
                     <i class="bi bi-table me-2 text-primary"></i>Daftar Jadwal Pelajaran
                 </h5>
 
+                <form method="get" class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input type="text" name="cari_guru" class="form-control" placeholder="Cari berdasarkan nama guru"
+                               value="<?= isset($_GET['cari_guru']) ? htmlspecialchars($_GET['cari_guru']) : ''; ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-outline-primary">Filter</button>
+                        <a href="jadwal.php" class="btn btn-outline-secondary ms-1">Reset</a>
+                    </div>
+                </form>
+
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-primary text-center">
@@ -109,6 +128,7 @@ if(isset($_SESSION['login']) == false){
                                 <th>No</th>
                                 <th>Kelas</th>
                                 <th>Mata Pelajaran</th>
+                                <th>Nama Guru</th>
                                 <th>Hari</th>
                                 <th>Jam</th>
                                 <th>Aksi</th>
@@ -117,11 +137,18 @@ if(isset($_SESSION['login']) == false){
 
                         <tbody>
                             <?php
+                            $filterGuru = '';
+                            if (isset($_GET['cari_guru']) && $_GET['cari_guru'] !== '') {
+                                $cari_guru = mysqli_real_escape_string($koneksi, $_GET['cari_guru']);
+                                $filterGuru = "WHERE j.nama_guru_232410 LIKE '%$cari_guru%'";
+                            }
+
                             // Ambil semua jadwal + JOIN kelas
                             $query = mysqli_query($koneksi, "
                                 SELECT 
                                     j.id_jadwal_232410,
                                     j.mata_pelajaran_232410,
+                                    j.nama_guru_232410,
                                     j.hari_232410,
                                     j.jam_mulai_232410,
                                     j.jam_selesai_232410,
@@ -129,6 +156,7 @@ if(isset($_SESSION['login']) == false){
                                 FROM jadwal_232410 AS j
                                 JOIN kelas_232410 AS k 
                                   ON k.id_kelas_232410 = j.id_kelas_232410
+                                $filterGuru
                                 ORDER BY 
                                     FIELD(hari_232410,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
                                     jam_mulai_232410 ASC
@@ -143,6 +171,7 @@ if(isset($_SESSION['login']) == false){
                                         <td class="text-center"><?= $no++; ?></td>
                                         <td><?= htmlspecialchars($row['nama_kelas_232410']); ?></td>
                                         <td><?= htmlspecialchars($row['mata_pelajaran_232410']); ?></td>
+                                        <td><?= htmlspecialchars($row['nama_guru_232410']); ?></td>
                                         <td class="text-center"><?= $row['hari_232410']; ?></td>
                                         <td class="text-center">
                                             <?= $row['jam_mulai_232410'] . " - " . $row['jam_selesai_232410']; ?>
@@ -164,7 +193,7 @@ if(isset($_SESSION['login']) == false){
                             } else {
                                 echo "
                                 <tr>
-                                    <td colspan='6' class='text-center'>Belum ada jadwal pelajaran.</td>
+                                    <td colspan='7' class='text-center'>Belum ada jadwal pelajaran.</td>
                                 </tr>";
                             }
                             ?>

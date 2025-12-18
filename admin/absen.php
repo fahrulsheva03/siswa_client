@@ -46,17 +46,25 @@ require 'layouts/header.php';
                     </div>
 
                     <div class="col-md-3">
-                        <buteton class="btn btn-primary" onclick="loadData()">
+                        <select id="filterKelas" class="form-select">
+                            <option value="">Semua Kelas</option>
+                            <?php
+                            $kelas = mysqli_query($koneksi, "SELECT id_kelas_232410, nama_kelas_232410 FROM kelas_232410 ORDER BY nama_kelas_232410 ASC");
+                            while ($k = mysqli_fetch_assoc($kelas)) {
+                                echo "<option value='{$k['id_kelas_232410']}'>" . htmlspecialchars($k['nama_kelas_232410']) . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="button" class="btn btn-primary flex-grow-1" onclick="loadData()">
                             Terapkan Filter
                         </button>
+                        <button type="button" class="btn btn-danger" onclick="exportPDF()">
+                            Export PDF
+                        </button>
                     </div>
-                     <!-- Tombol Export PDF -->
-                      <div class="col-md-3">
-
-                          <button class="btn btn-danger" onclick="exportPDF()">
-                              Export PDF
-                            </button>
-                        </div>
                 </div>
 
                 <div class="table-responsive">
@@ -70,6 +78,7 @@ require 'layouts/header.php';
                                 <th>Tanggal</th>
                                 <th>Waktu Scan</th>
                                 <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
 
@@ -89,6 +98,7 @@ require 'layouts/header.php';
 function loadData() {
     let tipe = document.getElementById('filterType').value;
     let tanggal = document.getElementById('filterDate').value;
+    let idKelas = document.getElementById('filterKelas').value;
 
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "filter_absensi.php", true);
@@ -100,18 +110,23 @@ function loadData() {
         }
     };
 
-    xhr.send("tipe=" + tipe + "&tanggal=" + tanggal);
+    let params = "tipe=" + encodeURIComponent(tipe) +
+                 "&tanggal=" + encodeURIComponent(tanggal) +
+                 "&id_kelas=" + encodeURIComponent(idKelas);
+
+    xhr.send(params);
 }
 
-// ----------------------
-// EXPORT PDF
-// ----------------------
 function exportPDF() {
     let tipe = document.getElementById('filterType').value;
     let tanggal = document.getElementById('filterDate').value;
+    let idKelas = document.getElementById('filterKelas').value;
 
-    // Kirim parameter ke file export_pdf.php
-    window.open("export_pdf.php?tipe=" + tipe + "&tanggal=" + tanggal, "_blank");
+    let url = "export_pdf.php?tipe=" + encodeURIComponent(tipe) +
+              "&tanggal=" + encodeURIComponent(tanggal) +
+              "&id_kelas=" + encodeURIComponent(idKelas);
+
+    window.open(url, "_blank");
 }
 
 document.getElementById("filterType").addEventListener("change", function () {
@@ -125,7 +140,6 @@ document.getElementById("filterType").addEventListener("change", function () {
     }
 });
 
-// Load awal
 loadData();
 </script>
 

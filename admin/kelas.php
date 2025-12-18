@@ -41,11 +41,7 @@ if(isset($_SESSION['login']) == false){
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Nama Kelas</label>
-                            <input type="text" name="nama" class="form-control" placeholder="Contoh: X RPL">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Wali Kelas</label>
-                            <input type="text" name="wali" class="form-control" placeholder="Nama wali kelas">
+                            <input type="text" name="nama" class="form-control" placeholder="Contoh: X RPL" required>
                         </div>
                     </div>
                     <div class="text-end">
@@ -68,7 +64,6 @@ if(isset($_SESSION['login']) == false){
                             <tr>
                                 <th>No</th>
                                 <th>Nama Kelas</th>
-                                <th>Wali Kelas</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -76,20 +71,18 @@ if(isset($_SESSION['login']) == false){
                         <tbody>
                             <?php
                             // Ambil data dari database
-                            $query = mysqli_query($koneksi, "SELECT * FROM kelas_232410 ORDER BY id_kelas_232410 DESC");
+                            $query = mysqli_query($koneksi, "SELECT id_kelas_232410, nama_kelas_232410 FROM kelas_232410 ORDER BY id_kelas_232410 DESC");
                             $no = 1;
                             $nama_tabel = 'kelas_232410';
                             if (mysqli_num_rows($query) > 0) {
                                 while ($data = mysqli_fetch_assoc($query)) {
                                     $id      = $data['id_kelas_232410'];
                                     $nama    = htmlspecialchars($data['nama_kelas_232410']);
-                                    $wali    = htmlspecialchars($data['wali_kelas_232410']);
                                     ?>
 
                                     <tr>
                                         <td class="text-center"><?= $no++; ?></td>
                                         <td><?= $nama; ?></td>
-                                        <td><?= $wali; ?></td>
                                         <td class="text-center">
                                             <a href="edit/kelas.php?id=<?= $id; ?>" 
                                                class="btn btn-warning btn-sm text-white">

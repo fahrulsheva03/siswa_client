@@ -51,7 +51,7 @@ $data = mysqli_fetch_assoc($q);
                     <div class="row mb-3">
 
                         <!-- Kelas -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">Kelas</label>
                             <select name="id_kelas" class="form-select" required>
                                 <?php
@@ -68,14 +68,21 @@ $data = mysqli_fetch_assoc($q);
                         </div>
 
                         <!-- Mata Pelajaran -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">Mata Pelajaran</label>
                             <input type="text" name="mapel" class="form-control"
                                 value="<?= htmlspecialchars($data['mata_pelajaran_232410']); ?>" required>
                         </div>
 
+                        <!-- Nama Guru -->
+                        <div class="col-md-3">
+                            <label class="form-label">Nama Guru</label>
+                            <input type="text" name="nama_guru" class="form-control"
+                                   value="<?= htmlspecialchars($data['nama_guru_232410']); ?>" required>
+                        </div>
+
                         <!-- Hari -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">Hari</label>
                             <select name="hari" class="form-select" required>
                                 <?php
