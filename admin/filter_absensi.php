@@ -4,6 +4,7 @@ require 'koneksi.php';
 $tipe    = $_POST['tipe'];
 $tanggal = $_POST['tanggal'];
 $idKelas = isset($_POST['id_kelas']) ? $_POST['id_kelas'] : '';
+$mapel   = isset($_POST['mapel']) ? trim($_POST['mapel']) : '';
 
 $where = "";
 
@@ -37,6 +38,15 @@ if (!empty($idKelas)) {
     }
 }
 
+if ($mapel !== '') {
+    $mapel = mysqli_real_escape_string($koneksi, $mapel);
+    if ($where === "") {
+        $where = "WHERE j.mata_pelajaran_232410 = '$mapel'";
+    } else {
+        $where .= " AND j.mata_pelajaran_232410 = '$mapel'";
+    }
+}
+
 $query = mysqli_query($koneksi, "
     SELECT 
         a.id_absensi_232410,
@@ -49,6 +59,11 @@ $query = mysqli_query($koneksi, "
     FROM absensi_232410 AS a
     JOIN siswa_232410 AS s
       ON s.id_siswa_232410 = a.id_siswa_232410
+    LEFT JOIN kelas_232410 AS k
+       ON s.kelas_232410 = k.id_kelas_232410
+    LEFT JOIN jadwal_232410 AS j
+       ON j.id_kelas_232410 = k.id_kelas_232410
+      AND a.waktu_scan_232410 BETWEEN j.jam_mulai_232410 AND j.jam_selesai_232410
     $where
     ORDER BY a.tanggal_232410 DESC, a.waktu_scan_232410 DESC
 ");
@@ -90,6 +105,6 @@ if (mysqli_num_rows($query) > 0) {
 } else {
     echo "
     <tr>
-        <td colspan='8' class='text-center'>Tidak ada data.</td>
+        <td colspan='8' class='text-center'>Tidak ada data untuk filter ini.</td>
     </tr>";
 }
