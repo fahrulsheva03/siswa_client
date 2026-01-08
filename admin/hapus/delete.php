@@ -2,6 +2,16 @@
 
 require '../koneksi.php';
 
+// Fungsi: Menghapus satu baris data dari tabel tertentu berdasarkan ID yang dikirim melalui URL.
+// Parameter input:
+// - $_GET['tabel']: nama tabel yang akan dihapus (misalnya siswa_232410, kelas_232410).
+// - $_GET['id']: nilai ID baris yang akan dihapus, akan dipetakan ke kolom id_<nama_tabel>.
+// Return value:
+// - Tidak mengembalikan nilai; menjalankan perintah DELETE lalu menampilkan pesan berhasil atau gagal melalui JavaScript.
+// Contoh penggunaan:
+// - Dipanggil dari tombol hapus pada halaman admin yang mengarahkan ke hapus/delete.php?tabel=...&id=....
+// Catatan penting:
+// - Nilai $tabel berasal langsung dari URL tanpa whitelist sehingga perlu kewaspadaan ekstra terhadap SQL Injection.
 // Ambil tabel yang akan dihapus dari URL
 $tabel = $_GET['tabel'];
 $id = $_GET['id'];

@@ -1,6 +1,18 @@
 <?php
 require 'koneksi.php';
 
+// Fungsi: Mengambil data absensi siswa yang sudah difilter berdasarkan periode, kelas, dan mata pelajaran.
+// Parameter input:
+// - $_POST['tipe']: jenis filter waktu (hari, minggu, atau bulan).
+// - $_POST['tanggal']: tanggal acuan untuk perhitungan hari, minggu, atau bulan.
+// - $_POST['id_kelas']: ID kelas yang ingin difilter (opsional).
+// - $_POST['mapel']: nama mata pelajaran yang ingin difilter (opsional).
+// Return value:
+// - Tidak mengembalikan nilai; mengeluarkan baris-baris HTML <tr> yang akan dimasukkan ke tabel melalui AJAX.
+// Contoh penggunaan:
+// - Dipanggil oleh fungsi JavaScript loadData() di admin/absen.php menggunakan XMLHttpRequest POST.
+// Catatan penting:
+// - Query melakukan JOIN ke tabel siswa, kelas, dan jadwal untuk menampilkan informasi lengkap absensi per siswa.
 $tipe    = $_POST['tipe'];
 $tanggal = $_POST['tanggal'];
 $idKelas = isset($_POST['id_kelas']) ? $_POST['id_kelas'] : '';

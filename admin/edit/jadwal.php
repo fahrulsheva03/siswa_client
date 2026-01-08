@@ -2,6 +2,15 @@
 require '../koneksi.php';
 require '../layouts/header.php';
 
+// Fungsi: Mengambil data satu jadwal pelajaran berdasarkan ID dan menampilkannya ke dalam form edit.
+// Parameter input:
+// - $_GET['id']: ID jadwal yang akan dicari di tabel jadwal_232410.
+// Return value:
+// - Tidak mengembalikan nilai; menampilkan form HTML yang ketika disubmit dikirim ke admin/function.php.
+// Contoh penggunaan:
+// - Diakses dari tombol edit pada halaman daftar jadwal admin yang menyertakan parameter ?id=... di URL.
+// Catatan penting:
+// - Jika ID tidak ditemukan atau tidak valid, pengguna diarahkan kembali ke halaman daftar jadwal dengan pesan.
 // Ambil ID jadwal
 if (!isset($_GET['id'])) {
     echo "<script>alert('ID jadwal tidak ditemukan!'); window.location.href='../admin/jadwal.php';</script>";

@@ -116,6 +116,15 @@ $selectedMapel = isset($_GET['mapel']) ? $_GET['mapel'] : '';
 
 </body>
 <script>
+// Fungsi: Mengambil data absensi dari server sesuai filter yang dipilih dan menampilkannya di tabel.
+// Parameter input:
+// - Mengambil langsung nilai dari elemen DOM: #filterType, #filterDate, #filterKelas, dan #filterMapel.
+// Return value:
+// - Tidak mengembalikan nilai; mengubah isi elemen tbody#dataAbsensi dan teks informasi filter di halaman.
+// Contoh penggunaan:
+// - Dipanggil saat tombol "Terapkan Filter" diklik atau saat halaman pertama kali dimuat.
+// Catatan penting:
+// - Mengirim request AJAX ke filter_absensi.php dengan metode POST dan memanfaatkan innerHTML untuk merender baris tabel.
 function loadData() {
     let tipe = document.getElementById('filterType').value;
     let tanggal = document.getElementById('filterDate').value;
@@ -142,6 +151,15 @@ function loadData() {
     updateFilterInfo();
 }
 
+// Fungsi: Membuka jendela baru yang menampilkan laporan PDF absensi berdasarkan filter yang dipilih.
+// Parameter input:
+// - Mengambil nilai dari elemen DOM: #filterType, #filterDate, #filterKelas, dan #filterMapel.
+// Return value:
+// - Tidak mengembalikan nilai; memanggil window.open() ke URL export_pdf.php dengan query string yang dibutuhkan.
+// Contoh penggunaan:
+// - Dipicu ketika pengguna menekan tombol "Export PDF" pada halaman absensi admin.
+// Catatan penting:
+// - PDF akan terbuka di tab baru sehingga pengguna dapat menyimpannya atau mencetak langsung dari browser.
 function exportPDF() {
     let tipe = document.getElementById('filterType').value;
     let tanggal = document.getElementById('filterDate').value;
@@ -156,6 +174,15 @@ function exportPDF() {
     window.open(url, "_blank");
 }
 
+// Fungsi: Menampilkan teks ringkasan filter mata pelajaran yang sedang aktif di bawah area filter.
+// Parameter input:
+// - Membaca nilai terpilih dari elemen select#filterMapel dan memanipulasi elemen #filterInfo.
+// Return value:
+// - Tidak mengembalikan nilai; hanya memperbarui innerHTML elemen #filterInfo di DOM.
+// Contoh penggunaan:
+// - Dipanggil setelah loadData() dan ketika nilai filterMapel berubah.
+// Catatan penting:
+// - Menampilkan badge "Semua" jika tidak ada mata pelajaran spesifik yang dipilih.
 function updateFilterInfo() {
     let mapelSelect = document.getElementById('filterMapel');
     let info = document.getElementById('filterInfo');

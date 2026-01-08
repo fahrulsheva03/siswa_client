@@ -5,6 +5,15 @@
 require '../koneksi.php';
 require '../layouts/header.php';
 
+// Fungsi: Mengambil data siswa berdasarkan ID dan menampilkannya dalam form untuk proses pengeditan.
+// Parameter input:
+// - $_GET['id']: ID siswa yang akan diedit dan diambil datanya dari tabel siswa_232410.
+// Return value:
+// - Tidak mengembalikan nilai; menampilkan form HTML yang ketika disubmit akan dikirim ke admin/function.php.
+// Contoh penggunaan:
+// - Halaman ini dipanggil dari tombol edit pada daftar siswa yang menyertakan parameter ?id=... di URL.
+// Catatan penting:
+// - Jika ID tidak ada atau datanya tidak ditemukan, pengguna akan diarahkan kembali dengan pesan peringatan.
 // Ambil ID dari URL
 if (isset($_GET['id'])) {
   $id = $_GET['id'];

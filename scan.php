@@ -1,6 +1,16 @@
 <?php
 require 'koneksi.php';
 
+// Fungsi: Menyediakan antarmuka scan QR untuk siswa dan menghubungkannya dengan proses pencatatan absensi.
+// Parameter input:
+// - $_SESSION['id_siswa_232410']: identitas siswa yang sudah login dan berhak mengakses halaman scan.
+// - Input QR dari kamera perangkat atau dari URL gambar yang ditempelkan pengguna.
+// Return value:
+// - Tidak mengembalikan nilai; menampilkan status absensi di halaman berdasarkan respon dari proses_scan.php.
+// Contoh penggunaan:
+// - Diakses setelah siswa login dan menekan tombol "Scan QR untuk Absen" dari dashboard.
+// Catatan penting:
+// - Menggunakan library html5-qrcode untuk membaca QR dari kamera serta memanfaatkan fetch API untuk mengirim data ke server.
 if (!isset($_SESSION['id_siswa_232410'])) {
   echo "<script>
             alert('Anda belum login!');
@@ -43,14 +53,29 @@ include 'includes/navbar.php';
 <script>
   let isProcessing = false;
 
-  // =====================================
-  //  SCAN DARI KAMERA
-  // =====================================
+  // Fungsi: Callback yang dijalankan ketika QR berhasil terbaca dari kamera, lalu mengirimnya ke server.
+  // Parameter input:
+  // - decodedText: teks hasil decode QR yang dibaca oleh html5-qrcode.
+  // Return value:
+  // - Tidak mengembalikan nilai; hanya memanggil processQR jika belum ada proses yang berjalan.
+  // Contoh penggunaan:
+  // - Didaftarkan sebagai handler sukses pada Html5QrcodeScanner.render(onScanSuccess, onScanError).
+  // Catatan penting:
+  // - Menggunakan flag isProcessing untuk mencegah pengiriman berulang saat kamera terus membaca QR.
   function onScanSuccess(decodedText) {
     if (isProcessing) return;
     processQR(decodedText);
   }
 
+  // Fungsi: Callback ketika terjadi error pembacaan QR dari kamera.
+  // Parameter input:
+  // - errorMessage: pesan kesalahan dari library html5-qrcode.
+  // Return value:
+  // - Tidak mengembalikan nilai; error diabaikan agar scanner tetap berjalan.
+  // Contoh penggunaan:
+  // - Didaftarkan sebagai handler error pada Html5QrcodeScanner.render.
+  // Catatan penting:
+  // - Kesalahan pembacaan sporadis dianggap normal sehingga tidak ditampilkan ke pengguna.
   function onScanError(errorMessage) {
     // abaikan error
   }
@@ -76,6 +101,16 @@ include 'includes/navbar.php';
   // =====================================
   //  KIRIM QR KE SERVER DAN TAMPILKAN STATUS
   // =====================================
+  // Fungsi: Mengonversi response dari server menjadi pesan status yang mudah dipahami pengguna.
+  // Parameter input:
+  // - response: string status yang dikirim proses_scan.php (misalnya Hadir, Terlambat, ALREADY, dsb.).
+  // - target: ID elemen HTML yang akan diisi pesan status (misalnya "status" atau "urlStatus").
+  // Return value:
+  // - Tidak mengembalikan nilai; hanya memodifikasi innerHTML elemen target dengan komponen alert Bootstrap.
+  // Contoh penggunaan:
+  // - Dipanggil dari processQR dan submitQrUrl setelah menerima respon teks dari server.
+  // Catatan penting:
+  // - Penambahan case baru di proses_scan.php perlu diselaraskan dengan percabangan di fungsi ini.
   function handleResponse(response, target) {
 
     let box = document.getElementById(target);
@@ -107,6 +142,15 @@ include 'includes/navbar.php';
   // =====================================
   //  PROSES QR DARI KAMERA
   // =====================================
+  // Fungsi: Mengirim nilai QR hasil scan kamera ke proses_scan.php dan menampilkan status kehadiran.
+  // Parameter input:
+  // - qrValue: string QR yang diterima dari onScanSuccess.
+  // Return value:
+  // - Tidak mengembalikan nilai; menampilkan pesan loading dan hasil absensi pada elemen #status.
+  // Contoh penggunaan:
+  // - Dipanggil secara internal oleh onScanSuccess ketika pengguna berhasil menscan QR.
+  // Catatan penting:
+  // - Setelah respon diterima, flag isProcessing akan dikembalikan ke false agar scan berikutnya bisa diproses.
   function processQR(qrValue) {
     isProcessing = true;
 
@@ -134,6 +178,15 @@ include 'includes/navbar.php';
   // =====================================
   //  PROSES QR DARI URL YANG DIPASTE
   // =====================================
+  // Fungsi: Mengambil nama file QR dari URL gambar yang dipaste, lalu mengirimkannya ke server untuk diproses sebagai absensi.
+  // Parameter input:
+  // - Tidak menerima parameter langsung; membaca nilai dari input text#qrUrlInput.
+  // Return value:
+  // - Tidak mengembalikan nilai; menampilkan pesan status pada elemen #urlStatus dan mengosongkannya setelah beberapa detik.
+  // Contoh penggunaan:
+  // - Dipicu ketika tombol "Gunakan QR dari URL" diklik oleh pengguna.
+  // Catatan penting:
+  // - Hanya menerima URL yang berakhiran .png, .jpg, atau .jpeg untuk meminimalkan input yang tidak relevan.
   function submitQrUrl() {
     let url = document.getElementById("qrUrlInput").value.trim();
     let box = document.getElementById("urlStatus");

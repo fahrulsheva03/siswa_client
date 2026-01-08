@@ -1,6 +1,16 @@
 <?php 
 require 'koneksi.php';
 
+// Fungsi: Menampilkan ringkasan statistik kehadiran siswa yang sedang login pada halaman dashboard.
+// Parameter input:
+// - $_SESSION['login_siswa']: penanda bahwa siswa sudah berhasil login.
+// - $_SESSION['id_siswa_232410']: ID siswa yang digunakan untuk mengambil data absensi dari database.
+// Return value:
+// - Tidak mengembalikan nilai; menampilkan tiga kartu statistik (Hadir, Terlambat, Alfa) di tampilan dashboard.
+// Contoh penggunaan:
+// - Diakses setelah siswa login dan diarahkan ke dashboard.php dari proses login.
+// Catatan penting:
+// - Menggunakan tiga query COUNT terpisah untuk setiap status, sehingga bisa dipertimbangkan optimasi bila data sangat besar.
 // Jika dashboard hanya boleh diakses setelah login
 if(!isset($_SESSION['login_siswa'])){
      echo "<script>alert('Anda belum login!');

@@ -5,6 +5,15 @@
 require '../koneksi.php';
 require '../layouts/header.php';
 
+// Fungsi: Memuat data satu kelas tertentu ke dalam form sehingga admin dapat mengeditnya.
+// Parameter input:
+// - $_GET['id']: ID kelas yang akan dicari pada tabel kelas_232410.
+// Return value:
+// - Tidak mengembalikan nilai; menampilkan form HTML yang hasil submit-nya dikirim ke admin/function.php.
+// Contoh penggunaan:
+// - Diakses dari tombol edit di halaman daftar kelas yang menyertakan parameter ?id=... di URL.
+// Catatan penting:
+// - Jika ID tidak valid atau data kelas tidak ditemukan, admin akan dikembalikan ke halaman daftar kelas dengan pesan.
 // Ambil ID dari URL
 if (isset($_GET['id'])) {
   $id = $_GET['id'];

@@ -4,6 +4,17 @@ require 'dompdf/autoload.inc.php';
 
 use Dompdf\Dompdf;
 
+// Fungsi: Membuat laporan PDF absensi siswa berdasarkan filter waktu dan kelas yang dipilih.
+// Parameter input:
+// - $_GET['tipe']: tipe filter waktu (hari, minggu, atau bulan).
+// - $_GET['tanggal']: tanggal acuan untuk filter yang dipilih.
+// - $_GET['id_kelas']: ID kelas yang ingin difilter (opsional).
+// Return value:
+// - Tidak mengembalikan nilai; menghasilkan output PDF langsung ke browser menggunakan Dompdf.
+// Contoh penggunaan:
+// - Dipanggil dari tombol "Export PDF" pada admin/absen.php yang membuka export_pdf.php di tab baru.
+// Catatan penting:
+// - Menggabungkan data dari tabel absensi dan siswa, lalu merender HTML sederhana menjadi PDF ukuran A4 portrait.
 $tipe     = $_GET['tipe'] ?? 'hari';
 $tanggal  = $_GET['tanggal'] ?? '';
 $idKelas  = $_GET['id_kelas'] ?? '';

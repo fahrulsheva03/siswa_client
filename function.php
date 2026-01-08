@@ -2,6 +2,16 @@
 require 'koneksi.php';
 
 
+// Fungsi: Memproses login admin menggunakan email dan password yang dikirim lewat form.
+// Parameter input:
+// - $_POST['email']: alamat email admin yang diinput di form login.
+// - $_POST['password']: password admin yang diinput di form login.
+// Return value:
+// - Tidak mengembalikan nilai; mengatur data $_SESSION dan melakukan redirect menggunakan JavaScript.
+// Contoh penggunaan:
+// - Dipicu saat form login admin disubmit dengan tombol name="login_admin".
+// Catatan penting:
+// - Password masih dibandingkan dalam bentuk teks biasa (belum di-hash) sehingga hanya cocok untuk lingkungan terkontrol.
 if (isset($_POST['login_admin'])) {
 
     // Pastikan request datang dari form POST
@@ -40,6 +50,16 @@ if (isset($_POST['login_admin'])) {
     }
 }
 
+// Fungsi: Memproses login siswa menggunakan NISN dan password yang dikirim lewat form.
+// Parameter input:
+// - $_POST['nisn']: NISN siswa yang digunakan sebagai kredensial login.
+// - $_POST['password']: password siswa yang diinput di form login.
+// Return value:
+// - Tidak mengembalikan nilai; menyetel data sesi siswa pada $_SESSION dan melakukan redirect ke dashboard.
+// Contoh penggunaan:
+// - Dipicu saat form login siswa disubmit dengan tombol name="login_siswa".
+// Catatan penting:
+// - Kredensial masih dicek dalam bentuk teks biasa tanpa hashing sehingga lebih cocok untuk lingkungan tertutup.
 if (isset($_POST["login_siswa"])) {
      // Ambil data dari form login
         $nisn = mysqli_real_escape_string($koneksi, $_POST['nisn']);
@@ -74,7 +94,17 @@ if (isset($_POST["login_siswa"])) {
         }
 }
 
-
+// Fungsi: Memproses registrasi admin baru berdasarkan data yang dikirim dari form.
+// Parameter input:
+// - $_POST['nama']: nama lengkap admin yang akan diregistrasi.
+// - $_POST['email']: alamat email admin yang akan digunakan untuk login.
+// - $_POST['password']: password admin dalam bentuk teks biasa.
+// Return value:
+// - Tidak mengembalikan nilai; menyimpan data admin ke database atau menampilkan pesan gagal melalui JavaScript.
+// Contoh penggunaan:
+// - Dipicu saat form registrasi admin disubmit dengan tombol name="registrasi".
+// Catatan penting:
+// - Hanya melakukan validasi sederhana duplikasi email dan belum mengenkripsi password, sehingga perlu peningkatan keamanan untuk produksi.
 if (isset($_POST['registrasi'])) {
 
     $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);

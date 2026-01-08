@@ -4,6 +4,16 @@ require 'koneksi.php';
 
 date_default_timezone_set('Asia/Makassar');
 
+// Fungsi: Memproses data QR yang discan siswa untuk mencatat absensi pada jadwal yang sesuai.
+// Parameter input:
+// - $_SESSION['id_siswa_232410']: identitas siswa yang sedang login dan melakukan scan.
+// - $_POST['qr']: nilai QR yang diterima dari client, berisi nama file atau kode QR siswa.
+// Return value:
+// - Mengirimkan string status ke client (Hadir, Terlambat, ALREADY, QR_INVALID, NO_CLASS, NOT_STARTED, dll.) dan tidak mengembalikan nilai PHP.
+// Contoh penggunaan:
+// - Dipanggil oleh JavaScript pada halaman scan.php melalui permintaan POST fetch("proses_scan.php", ...).
+// Catatan penting:
+// - Menggunakan prepared statement untuk akses database dan menentukan status kehadiran berdasarkan jadwal dan waktu scan saat ini.
 // =====================================================
 // VALIDASI LOGIN
 // =====================================================

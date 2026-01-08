@@ -5,6 +5,15 @@
 require '../koneksi.php';
 require '../layouts/header.php';
 
+// Fungsi: Menyajikan form edit untuk satu data absensi tertentu sebelum dikirim kembali ke handler update.
+// Parameter input:
+// - $_GET['id']: ID absensi yang akan diedit dan datanya diambil dari database.
+// Return value:
+// - Tidak mengembalikan nilai; menampilkan form HTML dengan nilai awal yang bisa diubah lalu dikirim ke admin/function.php.
+// Contoh penggunaan:
+// - Dihubungkan dari tombol edit pada tabel absensi di admin/absen.php, yang menambahkan parameter ?id=... di URL.
+// Catatan penting:
+// - Jika ID tidak ditemukan, pengguna akan diarahkan kembali ke halaman utama absensi dengan pesan peringatan.
 if (!isset($_GET['id'])) {
     echo "<script>
             alert('ID absensi tidak ditemukan!');

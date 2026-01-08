@@ -9,6 +9,19 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 
 
+// Fungsi: Menambahkan data siswa baru sekaligus membuat file QR Code unik untuk absensi.
+// Parameter input:
+// - $_POST['nama']: nama lengkap siswa yang akan didaftarkan.
+// - $_POST['nisn']: nomor induk siswa nasional yang menjadi identitas login.
+// - $_POST['kelas']: ID kelas tempat siswa terdaftar.
+// - $_POST['password']: password siswa dalam bentuk teks biasa.
+// - $_POST['status']: status keaktifan siswa (misalnya Aktif atau Nonaktif).
+// Return value:
+// - Tidak mengembalikan nilai; menyimpan data ke siswa_232410, membuat file QR di qr_images, lalu redirect dengan pesan.
+// Contoh penggunaan:
+// - Dipicu ketika form tambah siswa di halaman admin/siswa.php disubmit dengan tombol name="tambah_siswa".
+// Catatan penting:
+// - QR Code disimpan sebagai file PNG dan nama filenya direferensikan di kolom qr_code_232410 untuk proses scan absensi.
 // Cek apakah tombol tambah diklik
 if (isset($_POST['tambah_siswa'])) {
 
@@ -82,6 +95,20 @@ if (isset($_POST['tambah_siswa'])) {
   }
 }
 
+// Fungsi: Mengubah data identitas siswa yang sudah tersimpan di database.
+// Parameter input:
+// - $_POST['id']: ID siswa yang datanya akan diperbarui.
+// - $_POST['nama']: nama lengkap siswa terbaru.
+// - $_POST['nisn']: NISN terbaru apabila terjadi perubahan.
+// - $_POST['kelas']: ID kelas terbaru tempat siswa terdaftar.
+// - $_POST['status']: status keaktifan siswa (Aktif atau Nonaktif).
+// - $_POST['password']: password siswa yang disimpan dalam bentuk teks biasa.
+// Return value:
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada tabel siswa_232410 lalu redirect dengan pesan sukses atau gagal.
+// Contoh penggunaan:
+// - Dipicu dari form edit siswa di admin/edit/siswa.php yang disubmit dengan tombol name="edit_siswa".
+// Catatan penting:
+// - Perubahan password langsung menimpa nilai lama tanpa proses enkripsi maupun pencatatan riwayat.
 // Edit data siswa
 if (isset($_POST['edit_siswa'])) {
   $id     = $_POST['id'];
@@ -112,6 +139,15 @@ if (isset($_POST['edit_siswa'])) {
   }
 }
 
+// Fungsi: Menambahkan data kelas baru ke dalam tabel kelas_232410.
+// Parameter input:
+// - $_POST['nama']: nama kelas yang akan dibuat (misalnya X IPA 1).
+// Return value:
+// - Tidak mengembalikan nilai; menyisipkan baris baru ke kelas_232410 dan redirect ke halaman daftar kelas.
+// Contoh penggunaan:
+// - Dipicu saat admin mengisi form tambah kelas pada admin/kelas.php dengan tombol name="tambah_kelas".
+// Catatan penting:
+// - Validasi hanya memastikan nama kelas tidak kosong, belum ada pengecekan duplikasi nama.
 // Tambah data kelas
 if (isset($_POST['tambah_kelas'])) {
   $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
@@ -142,6 +178,16 @@ if (isset($_POST['tambah_kelas'])) {
 }
 
 
+// Fungsi: Memperbarui nama kelas yang sudah ada di tabel kelas_232410.
+// Parameter input:
+// - $_POST['id']: ID kelas yang akan diperbarui.
+// - $_POST['nama']: nama kelas baru yang akan disimpan.
+// Return value:
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada kelas_232410 lalu redirect dengan pesan sukses atau gagal.
+// Contoh penggunaan:
+// - Dipicu dari form edit kelas di admin/edit/kelas.php yang disubmit dengan tombol name="edit_kelas".
+// Catatan penting:
+// - Hanya kolom nama_kelas_232410 yang diubah; kolom lain seperti wali_kelas_232410 tidak disentuh di sini.
 // Edit data kelas
 if (isset($_POST['edit_kelas'])) {
   $id     = $_POST['id'];
@@ -172,6 +218,20 @@ if (isset($_POST['edit_kelas'])) {
   }
 }
 
+// Fungsi: Menambahkan jadwal pelajaran baru untuk suatu kelas pada hari dan jam tertentu.
+// Parameter input:
+// - $_POST['id_kelas']: ID kelas yang akan diberi jadwal pelajaran.
+// - $_POST['mapel']: nama mata pelajaran yang diajarkan.
+// - $_POST['nama_guru']: nama guru pengajar mata pelajaran tersebut.
+// - $_POST['hari']: hari pelaksanaan pelajaran (misalnya Senin, Selasa).
+// - $_POST['jam_mulai']: jam mulai pelajaran dalam format HH:MM.
+// - $_POST['jam_selesai']: jam selesai pelajaran dalam format HH:MM.
+// Return value:
+// - Tidak mengembalikan nilai; menyisipkan baris baru ke jadwal_232410 atau menampilkan pesan error bila tidak valid.
+// Contoh penggunaan:
+// - Dipicu saat admin menambah jadwal di admin/jadwal.php dengan tombol name="tambah_jadwal".
+// Catatan penting:
+// - Dilakukan validasi bentrok jam antar jadwal di kelas yang sama serta pembatasan satu guru hanya mengajar satu mata pelajaran.
 // =============== TAMBAH JADWAL ==================
 if (isset($_POST['tambah_jadwal'])) {
     $id_kelas    = $_POST['id_kelas'];
@@ -279,6 +339,21 @@ if (isset($_POST['tambah_jadwal'])) {
     exit;
 }
 
+// Fungsi: Mengubah jadwal pelajaran yang sudah ada tanpa menambah baris baru.
+// Parameter input:
+// - $_POST['id_jadwal']: ID jadwal yang akan diperbarui.
+// - $_POST['id_kelas']: ID kelas terkait jadwal tersebut.
+// - $_POST['mapel']: nama mata pelajaran terbaru.
+// - $_POST['nama_guru']: nama guru pengajar terbaru.
+// - $_POST['hari']: hari pelaksanaan pelajaran setelah perubahan.
+// - $_POST['jam_mulai']: jam mulai pelajaran yang baru.
+// - $_POST['jam_selesai']: jam selesai pelajaran yang baru.
+// Return value:
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada jadwal_232410 lalu redirect dengan pesan sesuai hasil.
+// Contoh penggunaan:
+// - Dipicu dari form edit jadwal di admin/edit/jadwal.php yang disubmit dengan tombol name="edit_jadwal".
+// Catatan penting:
+// - Tetap dilakukan pengecekan bentrok jadwal dan relasi satu guru satu mata pelajaran sebelum perubahan disimpan.
 // =============== EDIT JADWAL ==================
 if (isset($_POST['edit_jadwal'])) {
 
@@ -369,6 +444,18 @@ if (isset($_POST['edit_jadwal'])) {
     exit;
 }
 
+// Fungsi: Mengubah data absensi yang sudah tercatat, seperti tanggal, jam scan, atau status kehadiran.
+// Parameter input:
+// - $_POST['id_absensi']: ID baris absensi yang akan diedit.
+// - $_POST['tanggal']: tanggal kehadiran baru dalam format YYYY-MM-DD.
+// - $_POST['waktu_scan']: jam scan baru dalam format HH:MM.
+// - $_POST['status']: status kehadiran baru (Hadir, Terlambat, Alfa).
+// Return value:
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada absensi_232410 dan redirect dengan pesan sukses atau gagal.
+// Contoh penggunaan:
+// - Dipicu dari form edit absensi di admin/edit/absen.php yang disubmit dengan tombol name="edit_absensi".
+// Catatan penting:
+// - Status kehadiran dibatasi hanya ke nilai yang ada di array $allowedStatus untuk mencegah input tidak valid.
 // =============== EDIT ABSENSI ==================
 if (isset($_POST['edit_absensi'])) {
     $id_absensi = isset($_POST['id_absensi']) ? (int)$_POST['id_absensi'] : 0;

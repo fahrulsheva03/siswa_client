@@ -1,6 +1,16 @@
 <?php
 require 'koneksi.php';
 
+// Fungsi: Menampilkan riwayat lengkap absensi siswa yang sedang login beserta jadwal terkait.
+// Parameter input:
+// - $_SESSION['login_siswa']: status login siswa yang menjadi syarat akses halaman.
+// - $_SESSION['id_siswa_232410']: ID siswa yang digunakan dalam query riwayat absensi.
+// Return value:
+// - Tidak mengembalikan nilai; menghasilkan tabel HTML berisi daftar absensi dengan tanggal, hari, mapel, waktu, status, dan keterangan.
+// Contoh penggunaan:
+// - Diakses melalui menu Riwayat setelah siswa login ke sistem.
+// Catatan penting:
+// - Menggunakan LEFT JOIN ke jadwal_232410 sehingga tetap menampilkan riwayat meskipun jadwal sudah berubah atau tidak ditemukan.
 if (!isset($_SESSION['login_siswa'])) {
   echo "<script>alert('Anda belum login!');
      window.location.href='login_siswa.php';</script>";
