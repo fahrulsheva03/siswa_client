@@ -3,7 +3,7 @@
 
 
 // Koneksi ke database
-$koneksi = mysqli_connect("localhost", "root", "", "absens_qr");
+$koneksi = mysqli_connect("localhost", "root", "", "absensi_qr");
 
 
 // Mulai session untuk menyimpan data login
