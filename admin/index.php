@@ -12,17 +12,17 @@ if (isset($_SESSION['login']) == false) {
 }
 
 // Menghitung total semua siswa
-$query_total = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa_232410");
+$query_total = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa");
 $data_total = mysqli_fetch_assoc($query_total);
 $total_siswa = $data_total['total'];
 
 // // Menghitung jumlah siswa Aktif
-// $query_aktif = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa_232410 WHERE status_233410='Aktif'");
+// $query_aktif = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa WHERE status_233410='Aktif'");
 // $data_aktif = mysqli_fetch_assoc($query_aktif);
 // $siswa_aktif = $data_aktif['total'];
 
 // // Menghitung jumlah siswa Nonaktif
-// $query_nonaktif = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa_232410 WHERE status_233410='Nonaktif'");
+// $query_nonaktif = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa WHERE status_233410='Nonaktif'");
 // $data_nonaktif = mysqli_fetch_assoc($query_nonaktif);
 // $siswa_nonaktif = $data_nonaktif['total'];
 
@@ -61,7 +61,7 @@ $total_siswa = $data_total['total'];
 
         <!-- Menghitung total semua siswa -->
         <?php
-        $query_kelas = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM kelas_232410");
+        $query_kelas = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM kelas");
         $data_kelas = mysqli_fetch_assoc($query_kelas);
         $total_kelas = $data_kelas['total'];
         ?>
@@ -77,7 +77,7 @@ $total_siswa = $data_total['total'];
 
         <!-- Menghitung total semua jadwal -->
         <?php
-        $query_jadwal = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM jadwal_232410");
+        $query_jadwal = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM jadwal");
         $data_jadwal = mysqli_fetch_assoc($query_jadwal);
         $total_jadwal = $data_jadwal['total'];
         ?>
@@ -98,22 +98,22 @@ $total_siswa = $data_total['total'];
       <?php
       $query_riwayat = mysqli_query($koneksi, "
     SELECT 
-      a.tanggal_232410,
-      a.waktu_scan_232410,
-      a.status_kehadiran_232410,
-      s.nama_siswa_232410,
-      k.nama_kelas_232410,
-      j.mata_pelajaran_232410,
-      j.hari_232410
-    FROM absensi_232410 a
-    JOIN siswa_232410 s
-      ON a.id_siswa_232410 = s.id_siswa_232410
-    JOIN kelas_232410 k
-      ON s.kelas_232410 = k.id_kelas_232410
-    JOIN jadwal_232410 j
-      ON j.id_kelas_232410 = k.id_kelas_232410
-      AND a.waktu_scan_232410 BETWEEN j.jam_mulai_232410 AND j.jam_selesai_232410
-    ORDER BY a.id_absensi_232410 DESC
+      a.tanggal,
+      a.waktu_scan,
+      a.status_kehadiran,
+      s.nama_siswa,
+      k.nama_kelas,
+      j.mata_pelajaran,
+      j.hari
+    FROM absensi a
+    JOIN siswa s
+      ON a.id_siswa = s.id_siswa
+    JOIN kelas k
+      ON s.kelas = k.id_kelas
+    JOIN jadwal j
+      ON j.id_kelas = k.id_kelas
+      AND a.waktu_scan BETWEEN j.jam_mulai AND j.jam_selesai
+    ORDER BY a.id_absensi DESC
     LIMIT 10
 ");
 
@@ -143,17 +143,17 @@ $total_siswa = $data_total['total'];
                 <?php while ($row = mysqli_fetch_assoc($query_riwayat)): ?>
 
                   <tr>
-                    <td><?= htmlspecialchars($row['nama_siswa_232410']); ?></td>
-                    <td><?= htmlspecialchars($row['nama_kelas_232410']); ?></td>
-                    <td><?= htmlspecialchars($row['hari_232410']); ?></td>
-                    <td><?= htmlspecialchars($row['mata_pelajaran_232410']); ?></td>
-                    <td><?= htmlspecialchars($row['tanggal_232410']); ?></td>
-                    <td><?= htmlspecialchars($row['waktu_scan_232410']); ?></td>
+                    <td><?= htmlspecialchars($row['nama_siswa']); ?></td>
+                    <td><?= htmlspecialchars($row['nama_kelas']); ?></td>
+                    <td><?= htmlspecialchars($row['hari']); ?></td>
+                    <td><?= htmlspecialchars($row['mata_pelajaran']); ?></td>
+                    <td><?= htmlspecialchars($row['tanggal']); ?></td>
+                    <td><?= htmlspecialchars($row['waktu_scan']); ?></td>
 
                     <td>
-                      <?php if ($row['status_kehadiran_232410'] == "Hadir"): ?>
+                      <?php if ($row['status_kehadiran'] == "Hadir"): ?>
                         <span class="badge bg-success">Hadir</span>
-                      <?php elseif ($row['status_kehadiran_232410'] == "Terlambat"): ?>
+                      <?php elseif ($row['status_kehadiran'] == "Terlambat"): ?>
                         <span class="badge bg-warning text-dark">Terlambat</span>
                       <?php else: ?>
                         <span class="badge bg-danger">Alfa</span>

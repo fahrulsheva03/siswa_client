@@ -50,9 +50,9 @@ if(isset($_SESSION['login']) == false){
               <select name="kelas" class="form-select">
                 <option selected>Pilih kelas</option>
                 <?php
-                $query = mysqli_query($koneksi, "SELECT * FROM kelas_232410 ORDER BY id_kelas_232410 ASC");
+                $query = mysqli_query($koneksi, "SELECT * FROM kelas ORDER BY id_kelas ASC");
                 while ($k = mysqli_fetch_assoc($query)) {
-                  echo "<option value='{$k['id_kelas_232410']}'>{$k['nama_kelas_232410']}</option>";
+                  echo "<option value='{$k['id_kelas']}'>{$k['nama_kelas']}</option>";
                 }
                 ?>
               </select>
@@ -92,19 +92,19 @@ if(isset($_SESSION['login']) == false){
         <?php 
         
 
-        // Ambil data dari tabel siswa_232410 + join kelas
-        $query = mysqli_query($koneksi, "SELECT *, k.nama_kelas_232410 FROM siswa_232410 AS s JOIN kelas_232410 AS k ON s.kelas_232410 = k.id_kelas_232410 ORDER BY id_siswa_232410 DESC");
+        // Ambil data dari tabel siswa + join kelas
+        $query = mysqli_query($koneksi, "SELECT *, k.nama_kelas FROM siswa AS s JOIN kelas AS k ON s.kelas = k.id_kelas ORDER BY id_siswa DESC");
         $no = 1;
 
         // Periksa apakah ada data
         if (mysqli_num_rows($query) > 0) {
             while ($data = mysqli_fetch_assoc($query)) {
                 // Ambil data per field
-                $nama   = htmlspecialchars($data['nama_siswa_232410']);
-                $nisn   = htmlspecialchars($data['nisn_232410']);
-                $password = htmlspecialchars($data['password_232410']);
-                $kelas  = htmlspecialchars($data['nama_kelas_232410']);
-                $status = htmlspecialchars($data['status_232410']);
+                $nama   = htmlspecialchars($data['nama_siswa']);
+                $nisn   = htmlspecialchars($data['nisn']);
+                $password = htmlspecialchars($data['password']);
+                $kelas  = htmlspecialchars($data['nama_kelas']);
+                $status = htmlspecialchars($data['status']);
         ?>
         <tr>
           <td class="text-center"><?= $no++; ?></td>
@@ -120,15 +120,15 @@ if(isset($_SESSION['login']) == false){
             <?php endif; ?>
           </td>
           <td class="text-center">
-            <?php if ($data['qr_code_232410'] != null): ?>
-              <img src="qr_images/<?= $data['qr_code_232410']; ?>" height="50" width="50"  alt="QR Code">
+            <?php if ($data['qr_code'] != null): ?>
+              <img src="qr_images/<?= $data['qr_code']; ?>" height="50" width="50"  alt="QR Code">
             <?php else: ?>
               <span class="badge bg-secondary">Tidak ada QR Code</span>
             <?php endif; ?>
           </td>
           <td class="text-center">
-            <a href="edit/siswa.php?id=<?= $data['id_siswa_232410']; ?>" class="btn btn-warning btn-sm text-white"><i class="bi bi-pencil-square"></i></a>
-            <a href="hapus/delete.php?tabel=siswa_232410&id=<?= $data['id_siswa_232410']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus data ini?')">
+            <a href="edit/siswa.php?id=<?= $data['id_siswa']; ?>" class="btn btn-warning btn-sm text-white"><i class="bi bi-pencil-square"></i></a>
+            <a href="hapus/delete.php?tabel=siswa&id=<?= $data['id_siswa']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus data ini?')">
               <i class="bi bi-trash3"></i>
             </a>
           </td>

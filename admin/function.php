@@ -17,11 +17,11 @@ use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 // - $_POST['password']: password siswa dalam bentuk teks biasa.
 // - $_POST['status']: status keaktifan siswa (misalnya Aktif atau Nonaktif).
 // Return value:
-// - Tidak mengembalikan nilai; menyimpan data ke siswa_232410, membuat file QR di qr_images, lalu redirect dengan pesan.
+// - Tidak mengembalikan nilai; menyimpan data ke siswa, membuat file QR di qr_images, lalu redirect dengan pesan.
 // Contoh penggunaan:
 // - Dipicu ketika form tambah siswa di halaman admin/siswa.php disubmit dengan tombol name="tambah_siswa".
 // Catatan penting:
-// - QR Code disimpan sebagai file PNG dan nama filenya direferensikan di kolom qr_code_232410 untuk proses scan absensi.
+// - QR Code disimpan sebagai file PNG dan nama filenya direferensikan di kolom qr_code untuk proses scan absensi.
 // Cek apakah tombol tambah diklik
 if (isset($_POST['tambah_siswa'])) {
 
@@ -44,8 +44,8 @@ if (isset($_POST['tambah_siswa'])) {
   // ===============================
   // 1. Tambah siswa dulu
   // ===============================
-  $query = "INSERT INTO siswa_232410 
-            (nama_siswa_232410, nisn_232410, kelas_232410, password_232410, status_232410) 
+  $query = "INSERT INTO siswa 
+            (nama_siswa, nisn, kelas, password, status) 
              VALUES ('$nama', '$nisn', '$kelas', '$password', '$status')";
 
   if (mysqli_query($koneksi, $query)) {
@@ -76,9 +76,9 @@ if (isset($_POST['tambah_siswa'])) {
     $result->saveToFile($qrPath);
 
     // 6. Update siswa dengan qr_code
-    $updateQR = "UPDATE siswa_232410 
-                     SET qr_code_232410 = '$qrFilename' 
-                     WHERE id_siswa_232410 = '$siswa_id'";
+    $updateQR = "UPDATE siswa 
+                     SET qr_code = '$qrFilename' 
+                     WHERE id_siswa = '$siswa_id'";
 
     mysqli_query($koneksi, $updateQR);
 
@@ -104,7 +104,7 @@ if (isset($_POST['tambah_siswa'])) {
 // - $_POST['status']: status keaktifan siswa (Aktif atau Nonaktif).
 // - $_POST['password']: password siswa yang disimpan dalam bentuk teks biasa.
 // Return value:
-// - Tidak mengembalikan nilai; menjalankan UPDATE pada tabel siswa_232410 lalu redirect dengan pesan sukses atau gagal.
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada tabel siswa lalu redirect dengan pesan sukses atau gagal.
 // Contoh penggunaan:
 // - Dipicu dari form edit siswa di admin/edit/siswa.php yang disubmit dengan tombol name="edit_siswa".
 // Catatan penting:
@@ -118,13 +118,13 @@ if (isset($_POST['edit_siswa'])) {
   $status = mysqli_real_escape_string($koneksi, $_POST['status']);
   $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
-  $update = mysqli_query($koneksi, "UPDATE siswa_232410 
-    SET nama_siswa_232410='$nama', 
-        nisn_232410='$nisn', 
-        kelas_232410='$kelas', 
-        status_232410='$status',
-        password_232410='$password' 
-    WHERE id_siswa_232410='$id'");
+  $update = mysqli_query($koneksi, "UPDATE siswa 
+    SET nama_siswa='$nama', 
+        nisn='$nisn', 
+        kelas='$kelas', 
+        status='$status',
+        password='$password' 
+    WHERE id_siswa='$id'");
 
   if ($update) {
     echo "<script>
@@ -139,11 +139,11 @@ if (isset($_POST['edit_siswa'])) {
   }
 }
 
-// Fungsi: Menambahkan data kelas baru ke dalam tabel kelas_232410.
+// Fungsi: Menambahkan data kelas baru ke dalam tabel kelas.
 // Parameter input:
 // - $_POST['nama']: nama kelas yang akan dibuat (misalnya X IPA 1).
 // Return value:
-// - Tidak mengembalikan nilai; menyisipkan baris baru ke kelas_232410 dan redirect ke halaman daftar kelas.
+// - Tidak mengembalikan nilai; menyisipkan baris baru ke kelas dan redirect ke halaman daftar kelas.
 // Contoh penggunaan:
 // - Dipicu saat admin mengisi form tambah kelas pada admin/kelas.php dengan tombol name="tambah_kelas".
 // Catatan penting:
@@ -160,8 +160,8 @@ if (isset($_POST['tambah_kelas'])) {
     exit;
   }
 
-  $query = "INSERT INTO kelas_232410 
-            (nama_kelas_232410) 
+  $query = "INSERT INTO kelas 
+            (nama_kelas) 
              VALUES ('$nama')";
 
   if (mysqli_query($koneksi, $query)) {
@@ -178,16 +178,16 @@ if (isset($_POST['tambah_kelas'])) {
 }
 
 
-// Fungsi: Memperbarui nama kelas yang sudah ada di tabel kelas_232410.
+// Fungsi: Memperbarui nama kelas yang sudah ada di tabel kelas.
 // Parameter input:
 // - $_POST['id']: ID kelas yang akan diperbarui.
 // - $_POST['nama']: nama kelas baru yang akan disimpan.
 // Return value:
-// - Tidak mengembalikan nilai; menjalankan UPDATE pada kelas_232410 lalu redirect dengan pesan sukses atau gagal.
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada kelas lalu redirect dengan pesan sukses atau gagal.
 // Contoh penggunaan:
 // - Dipicu dari form edit kelas di admin/edit/kelas.php yang disubmit dengan tombol name="edit_kelas".
 // Catatan penting:
-// - Hanya kolom nama_kelas_232410 yang diubah; kolom lain seperti wali_kelas_232410 tidak disentuh di sini.
+// - Hanya kolom nama_kelas yang diubah; kolom lain seperti wali_kelas tidak disentuh di sini.
 // Edit data kelas
 if (isset($_POST['edit_kelas'])) {
   $id     = $_POST['id'];
@@ -201,9 +201,9 @@ if (isset($_POST['edit_kelas'])) {
     exit;
   }
 
-  $update = mysqli_query($koneksi, "UPDATE kelas_232410 
-    SET nama_kelas_232410='$nama'
-    WHERE id_kelas_232410='$id'");
+  $update = mysqli_query($koneksi, "UPDATE kelas 
+    SET nama_kelas='$nama'
+    WHERE id_kelas='$id'");
 
   if ($update) {
     echo "<script>
@@ -227,7 +227,7 @@ if (isset($_POST['edit_kelas'])) {
 // - $_POST['jam_mulai']: jam mulai pelajaran dalam format HH:MM.
 // - $_POST['jam_selesai']: jam selesai pelajaran dalam format HH:MM.
 // Return value:
-// - Tidak mengembalikan nilai; menyisipkan baris baru ke jadwal_232410 atau menampilkan pesan error bila tidak valid.
+// - Tidak mengembalikan nilai; menyisipkan baris baru ke jadwal atau menampilkan pesan error bila tidak valid.
 // Contoh penggunaan:
 // - Dipicu saat admin menambah jadwal di admin/jadwal.php dengan tombol name="tambah_jadwal".
 // Catatan penting:
@@ -277,12 +277,12 @@ if (isset($_POST['tambah_jadwal'])) {
 
     $cek = mysqli_query($koneksi, "
         SELECT * 
-        FROM jadwal_232410
-        WHERE id_kelas_232410 = '$id_kelas'
-          AND hari_232410 = '$hari'
+        FROM jadwal
+        WHERE id_kelas = '$id_kelas'
+          AND hari = '$hari'
           AND (
-                ( '$jam_mulai' < jam_selesai_232410 ) 
-            AND ( '$jam_selesai' > jam_mulai_232410 )
+                ( '$jam_mulai' < jam_selesai ) 
+            AND ( '$jam_selesai' > jam_mulai )
           )
     ");
 
@@ -298,17 +298,17 @@ if (isset($_POST['tambah_jadwal'])) {
     // CEK RELASI 1 GURU : 1 MAPEL
     // ----------------------------
     $cekGuru = mysqli_query($koneksi, "
-        SELECT DISTINCT mata_pelajaran_232410 
-        FROM jadwal_232410
-        WHERE nama_guru_232410 = '$nama_guru'
+        SELECT DISTINCT mata_pelajaran 
+        FROM jadwal
+        WHERE nama_guru = '$nama_guru'
         LIMIT 1
     ");
 
     if ($cekGuru && mysqli_num_rows($cekGuru) > 0) {
         $rowGuru = mysqli_fetch_assoc($cekGuru);
-        if ($rowGuru['mata_pelajaran_232410'] !== $mapel) {
+        if ($rowGuru['mata_pelajaran'] !== $mapel) {
             echo "<script>
-                    alert('Guru ini sudah terdaftar mengajar mata pelajaran \"{$rowGuru['mata_pelajaran_232410']}\". Satu guru hanya boleh mengajar satu mata pelajaran.');
+                    alert('Guru ini sudah terdaftar mengajar mata pelajaran \"{$rowGuru['mata_pelajaran']}\". Satu guru hanya boleh mengajar satu mata pelajaran.');
                     window.location.href='jadwal.php';
                   </script>";
             exit;
@@ -319,8 +319,8 @@ if (isset($_POST['tambah_jadwal'])) {
     // INSERT JADWAL JIKA VALID
     // ----------------------------
     $query = "
-        INSERT INTO jadwal_232410 
-        (id_kelas_232410, mata_pelajaran_232410, nama_guru_232410, hari_232410, jam_mulai_232410, jam_selesai_232410)
+        INSERT INTO jadwal 
+        (id_kelas, mata_pelajaran, nama_guru, hari, jam_mulai, jam_selesai)
         VALUES ('$id_kelas', '$mapel', '$nama_guru', '$hari', '$jam_mulai', '$jam_selesai')
     ";
 
@@ -349,7 +349,7 @@ if (isset($_POST['tambah_jadwal'])) {
 // - $_POST['jam_mulai']: jam mulai pelajaran yang baru.
 // - $_POST['jam_selesai']: jam selesai pelajaran yang baru.
 // Return value:
-// - Tidak mengembalikan nilai; menjalankan UPDATE pada jadwal_232410 lalu redirect dengan pesan sesuai hasil.
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada jadwal lalu redirect dengan pesan sesuai hasil.
 // Contoh penggunaan:
 // - Dipicu dari form edit jadwal di admin/edit/jadwal.php yang disubmit dengan tombol name="edit_jadwal".
 // Catatan penting:
@@ -385,13 +385,13 @@ if (isset($_POST['edit_jadwal'])) {
     // --- CEK DUPLIKASI / BENTROK ---
     $cek = mysqli_query($koneksi, "
         SELECT * 
-        FROM jadwal_232410
-        WHERE id_kelas_232410 = '$id_kelas'
-          AND hari_232410 = '$hari'
-          AND id_jadwal_232410 != '$id_jadwal'
+        FROM jadwal
+        WHERE id_kelas = '$id_kelas'
+          AND hari = '$hari'
+          AND id_jadwal != '$id_jadwal'
           AND (
-                ('$jam_mulai' < jam_selesai_232410)
-            AND ('$jam_selesai' > jam_mulai_232410)
+                ('$jam_mulai' < jam_selesai)
+            AND ('$jam_selesai' > jam_mulai)
           )
     ");
 
@@ -407,18 +407,18 @@ if (isset($_POST['edit_jadwal'])) {
     // CEK RELASI 1 GURU : 1 MAPEL (EDIT)
     // ----------------------------
     $cekGuru = mysqli_query($koneksi, "
-        SELECT DISTINCT mata_pelajaran_232410 
-        FROM jadwal_232410
-        WHERE nama_guru_232410 = '$nama_guru'
-          AND id_jadwal_232410 != '$id_jadwal'
+        SELECT DISTINCT mata_pelajaran 
+        FROM jadwal
+        WHERE nama_guru = '$nama_guru'
+          AND id_jadwal != '$id_jadwal'
         LIMIT 1
     ");
 
     if ($cekGuru && mysqli_num_rows($cekGuru) > 0) {
         $rowGuru = mysqli_fetch_assoc($cekGuru);
-        if ($rowGuru['mata_pelajaran_232410'] !== $mapel) {
+        if ($rowGuru['mata_pelajaran'] !== $mapel) {
             echo "<script>
-                    alert('Guru ini sudah terdaftar mengajar mata pelajaran \"{$rowGuru['mata_pelajaran_232410']}\". Satu guru hanya boleh mengajar satu mata pelajaran.');
+                    alert('Guru ini sudah terdaftar mengajar mata pelajaran \"{$rowGuru['mata_pelajaran']}\". Satu guru hanya boleh mengajar satu mata pelajaran.');
                     window.location.href='edit/jadwal.php?id=$id_jadwal';
                   </script>";
             exit;
@@ -427,14 +427,14 @@ if (isset($_POST['edit_jadwal'])) {
 
     // --- UPDATE JADWAL ---
     mysqli_query($koneksi, "
-        UPDATE jadwal_232410 SET 
-            id_kelas_232410 = '$id_kelas',
-            mata_pelajaran_232410 = '$mapel',
-            nama_guru_232410 = '$nama_guru',
-            hari_232410 = '$hari',
-            jam_mulai_232410 = '$jam_mulai',
-            jam_selesai_232410 = '$jam_selesai'
-        WHERE id_jadwal_232410 = '$id_jadwal'
+        UPDATE jadwal SET 
+            id_kelas = '$id_kelas',
+            mata_pelajaran = '$mapel',
+            nama_guru = '$nama_guru',
+            hari = '$hari',
+            jam_mulai = '$jam_mulai',
+            jam_selesai = '$jam_selesai'
+        WHERE id_jadwal = '$id_jadwal'
     ");
 
     echo "<script>
@@ -451,7 +451,7 @@ if (isset($_POST['edit_jadwal'])) {
 // - $_POST['waktu_scan']: jam scan baru dalam format HH:MM.
 // - $_POST['status']: status kehadiran baru (Hadir, Terlambat, Alfa).
 // Return value:
-// - Tidak mengembalikan nilai; menjalankan UPDATE pada absensi_232410 dan redirect dengan pesan sukses atau gagal.
+// - Tidak mengembalikan nilai; menjalankan UPDATE pada absensi dan redirect dengan pesan sukses atau gagal.
 // Contoh penggunaan:
 // - Dipicu dari form edit absensi di admin/edit/absen.php yang disubmit dengan tombol name="edit_absensi".
 // Catatan penting:
@@ -481,11 +481,11 @@ if (isset($_POST['edit_absensi'])) {
     }
 
     $update = mysqli_query($koneksi, "
-        UPDATE absensi_232410 SET
-            tanggal_232410 = '$tanggal',
-            waktu_scan_232410 = '$waktu',
-            status_kehadiran_232410 = '$status'
-        WHERE id_absensi_232410 = '$id_absensi'
+        UPDATE absensi SET
+            tanggal = '$tanggal',
+            waktu_scan = '$waktu',
+            status_kehadiran = '$status'
+        WHERE id_absensi = '$id_absensi'
     ");
 
     if ($update) {

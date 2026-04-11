@@ -45,9 +45,9 @@ if(isset($_SESSION['login']) == false){
                             <select name="id_kelas" class="form-select" required>
                                 <option value="">-- Pilih Kelas --</option>
                                 <?php
-                                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas_232410 ORDER BY nama_kelas_232410 ASC");
+                                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas ORDER BY nama_kelas ASC");
                                 while ($k = mysqli_fetch_assoc($kelas)) {
-                                    echo "<option value='{$k['id_kelas_232410']}'>{$k['nama_kelas_232410']}</option>";
+                                    echo "<option value='{$k['id_kelas']}'>{$k['nama_kelas']}</option>";
                                 }
                                 ?>
                             </select>
@@ -140,26 +140,26 @@ if(isset($_SESSION['login']) == false){
                             $filterGuru = '';
                             if (isset($_GET['cari_guru']) && $_GET['cari_guru'] !== '') {
                                 $cari_guru = mysqli_real_escape_string($koneksi, $_GET['cari_guru']);
-                                $filterGuru = "WHERE j.nama_guru_232410 LIKE '%$cari_guru%'";
+                                $filterGuru = "WHERE j.nama_guru LIKE '%$cari_guru%'";
                             }
 
                             // Ambil semua jadwal + JOIN kelas
                             $query = mysqli_query($koneksi, "
                                 SELECT 
-                                    j.id_jadwal_232410,
-                                    j.mata_pelajaran_232410,
-                                    j.nama_guru_232410,
-                                    j.hari_232410,
-                                    j.jam_mulai_232410,
-                                    j.jam_selesai_232410,
-                                    k.nama_kelas_232410
-                                FROM jadwal_232410 AS j
-                                JOIN kelas_232410 AS k 
-                                  ON k.id_kelas_232410 = j.id_kelas_232410
+                                    j.id_jadwal,
+                                    j.mata_pelajaran,
+                                    j.nama_guru,
+                                    j.hari,
+                                    j.jam_mulai,
+                                    j.jam_selesai,
+                                    k.nama_kelas
+                                FROM jadwal AS j
+                                JOIN kelas AS k 
+                                  ON k.id_kelas = j.id_kelas
                                 $filterGuru
                                 ORDER BY 
-                                    FIELD(hari_232410,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
-                                    jam_mulai_232410 ASC
+                                    FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
+                                    jam_mulai ASC
                             ");
 
                             $no = 1;
@@ -169,19 +169,19 @@ if(isset($_SESSION['login']) == false){
                             ?>
                                     <tr>
                                         <td class="text-center"><?= $no++; ?></td>
-                                        <td><?= htmlspecialchars($row['nama_kelas_232410']); ?></td>
-                                        <td><?= htmlspecialchars($row['mata_pelajaran_232410']); ?></td>
-                                        <td><?= htmlspecialchars($row['nama_guru_232410']); ?></td>
-                                        <td class="text-center"><?= $row['hari_232410']; ?></td>
+                                        <td><?= htmlspecialchars($row['nama_kelas']); ?></td>
+                                        <td><?= htmlspecialchars($row['mata_pelajaran']); ?></td>
+                                        <td><?= htmlspecialchars($row['nama_guru']); ?></td>
+                                        <td class="text-center"><?= $row['hari']; ?></td>
                                         <td class="text-center">
-                                            <?= $row['jam_mulai_232410'] . " - " . $row['jam_selesai_232410']; ?>
+                                            <?= $row['jam_mulai'] . " - " . $row['jam_selesai']; ?>
                                         </td>
                                         <td class="text-center">
-                                            <a href="edit/jadwal.php?id=<?= $row['id_jadwal_232410']; ?>"
+                                            <a href="edit/jadwal.php?id=<?= $row['id_jadwal']; ?>"
                                                 class="btn btn-warning btn-sm text-white">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                            <a href="hapus/delete.php?tabel=jadwal_232410&id=<?= $row['id_jadwal_232410']; ?>"
+                                            <a href="hapus/delete.php?tabel=jadwal&id=<?= $row['id_jadwal']; ?>"
                                                 class="btn btn-danger btn-sm"
                                                 onclick="return confirm('Hapus jadwal ini?')">
                                                 <i class="bi bi-trash3"></i>

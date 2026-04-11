@@ -22,42 +22,42 @@ $idKelas  = $_GET['id_kelas'] ?? '';
 $where = "";
 
 if ($tipe == "hari" && !empty($tanggal)) {
-    $where = "WHERE a.tanggal_232410 = '$tanggal'";
+    $where = "WHERE a.tanggal = '$tanggal'";
 } elseif ($tipe == "minggu" && !empty($tanggal)) {
     $minggu = date("W", strtotime($tanggal));
     $tahun  = date("Y", strtotime($tanggal));
 
-    $where = "WHERE WEEK(a.tanggal_232410, 1) = '$minggu'
-              AND YEAR(a.tanggal_232410) = '$tahun'";
+    $where = "WHERE WEEK(a.tanggal, 1) = '$minggu'
+              AND YEAR(a.tanggal) = '$tahun'";
 } elseif ($tipe == "bulan" && !empty($tanggal)) {
     list($tahun, $bulan) = explode("-", $tanggal);
 
-    $where = "WHERE MONTH(a.tanggal_232410) = '$bulan'
-              AND YEAR(a.tanggal_232410) = '$tahun'";
+    $where = "WHERE MONTH(a.tanggal) = '$bulan'
+              AND YEAR(a.tanggal) = '$tahun'";
 }
 
 if (!empty($idKelas)) {
     $idKelas = mysqli_real_escape_string($koneksi, $idKelas);
     if ($where === "") {
-        $where = "WHERE s.kelas_232410 = '$idKelas'";
+        $where = "WHERE s.kelas = '$idKelas'";
     } else {
-        $where .= " AND s.kelas_232410 = '$idKelas'";
+        $where .= " AND s.kelas = '$idKelas'";
     }
 }
 
 $query = mysqli_query($koneksi, "
     SELECT 
-        a.tanggal_232410,
-        a.waktu_scan_232410,
-        a.status_kehadiran_232410,
-        s.nama_siswa_232410,
-        s.nisn_232410,
-        s.kelas_232410
-    FROM absensi_232410 AS a
-    JOIN siswa_232410 AS s 
-        ON s.id_siswa_232410 = a.id_siswa_232410
+        a.tanggal,
+        a.waktu_scan,
+        a.status_kehadiran,
+        s.nama_siswa,
+        s.nisn,
+        s.kelas
+    FROM absensi AS a
+    JOIN siswa AS s 
+        ON s.id_siswa = a.id_siswa
     $where
-    ORDER BY a.tanggal_232410 DESC, a.waktu_scan_232410 DESC
+    ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ");
 
 
@@ -91,12 +91,12 @@ if (mysqli_num_rows($query) > 0) {
         $html .= "
         <tr>
             <td style='text-align:center;'>".$no++."</td>
-            <td>".$row['nama_siswa_232410']."</td>
-            <td>".$row['nisn_232410']."</td>
-            <td>".$row['kelas_232410']."</td>
-            <td style='text-align:center;'>".$row['tanggal_232410']."</td>
-            <td style='text-align:center;'>".$row['waktu_scan_232410']."</td>
-            <td style='text-align:center;'>".$row['status_kehadiran_232410']."</td>
+            <td>".$row['nama_siswa']."</td>
+            <td>".$row['nisn']."</td>
+            <td>".$row['kelas']."</td>
+            <td style='text-align:center;'>".$row['tanggal']."</td>
+            <td style='text-align:center;'>".$row['waktu_scan']."</td>
+            <td style='text-align:center;'>".$row['status_kehadiran']."</td>
         </tr>
         ";
     }

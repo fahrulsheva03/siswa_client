@@ -4,7 +4,7 @@ require 'koneksi.php';
 // Fungsi: Menampilkan ringkasan statistik kehadiran siswa yang sedang login pada halaman dashboard.
 // Parameter input:
 // - $_SESSION['login_siswa']: penanda bahwa siswa sudah berhasil login.
-// - $_SESSION['id_siswa_232410']: ID siswa yang digunakan untuk mengambil data absensi dari database.
+// - $_SESSION['id_siswa']: ID siswa yang digunakan untuk mengambil data absensi dari database.
 // Return value:
 // - Tidak mengembalikan nilai; menampilkan tiga kartu statistik (Hadir, Terlambat, Alfa) di tampilan dashboard.
 // Contoh penggunaan:
@@ -19,7 +19,7 @@ if(!isset($_SESSION['login_siswa'])){
 }
 
 // SIMPAN ID SISWA DARI SESSION
-$id_siswa = $_SESSION['id_siswa_232410']; // pastikan ini sudah di-set waktu login
+$id_siswa = $_SESSION['id_siswa']; // pastikan ini sudah di-set waktu login
 
 
 include 'includes/header.php'; 
@@ -33,9 +33,9 @@ include 'includes/navbar.php';
 
 // Total Hadir
 $qHadir = mysqli_prepare($koneksi, 
-    "SELECT COUNT(*) FROM absensi_232410 
-     WHERE id_siswa_232410 = ? 
-     AND status_kehadiran_232410 = 'Hadir'"
+    "SELECT COUNT(*) FROM absensi 
+     WHERE id_siswa = ? 
+     AND status_kehadiran = 'Hadir'"
 );
 mysqli_stmt_bind_param($qHadir, "i", $id_siswa);
 mysqli_stmt_execute($qHadir);
@@ -45,9 +45,9 @@ mysqli_stmt_close($qHadir);
 
 // Total Telat
 $qTelat = mysqli_prepare($koneksi, 
-    "SELECT COUNT(*) FROM absensi_232410 
-     WHERE id_siswa_232410 = ? 
-     AND status_kehadiran_232410 = 'Terlambat'"
+    "SELECT COUNT(*) FROM absensi 
+     WHERE id_siswa = ? 
+     AND status_kehadiran = 'Terlambat'"
 );
 mysqli_stmt_bind_param($qTelat, "i", $id_siswa);
 mysqli_stmt_execute($qTelat);
@@ -57,9 +57,9 @@ mysqli_stmt_close($qTelat);
 
 // Total Alfa
 $qAlfa = mysqli_prepare($koneksi, 
-    "SELECT COUNT(*) FROM absensi_232410 
-     WHERE id_siswa_232410 = ? 
-     AND status_kehadiran_232410 = 'Alfa'"
+    "SELECT COUNT(*) FROM absensi 
+     WHERE id_siswa = ? 
+     AND status_kehadiran = 'Alfa'"
 );
 mysqli_stmt_bind_param($qAlfa, "i", $id_siswa);
 mysqli_stmt_execute($qAlfa);

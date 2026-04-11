@@ -22,62 +22,62 @@ $where = "";
 
 if ($tipe == "hari") {
     if (!empty($tanggal)) {
-        $where = "WHERE a.tanggal_232410 = '$tanggal'";
+        $where = "WHERE a.tanggal = '$tanggal'";
     }
 } elseif ($tipe == "minggu") {
     if (!empty($tanggal)) {
         $minggu = date("W", strtotime($tanggal));
         $tahun  = date("Y", strtotime($tanggal));
 
-        $where = "WHERE WEEK(a.tanggal_232410, 1) = '$minggu'
-                  AND YEAR(a.tanggal_232410) = '$tahun'";
+        $where = "WHERE WEEK(a.tanggal, 1) = '$minggu'
+                  AND YEAR(a.tanggal) = '$tahun'";
     }
 } elseif ($tipe == "bulan") {
     if (!empty($tanggal)) {
         list($tahun, $bulan) = explode("-", $tanggal);
 
-        $where = "WHERE MONTH(a.tanggal_232410) = '$bulan'
-                  AND YEAR(a.tanggal_232410) = '$tahun'";
+        $where = "WHERE MONTH(a.tanggal) = '$bulan'
+                  AND YEAR(a.tanggal) = '$tahun'";
     }
 }
 
 if (!empty($idKelas)) {
     $idKelas = mysqli_real_escape_string($koneksi, $idKelas);
     if ($where === "") {
-        $where = "WHERE s.kelas_232410 = '$idKelas'";
+        $where = "WHERE s.kelas = '$idKelas'";
     } else {
-        $where .= " AND s.kelas_232410 = '$idKelas'";
+        $where .= " AND s.kelas = '$idKelas'";
     }
 }
 
 if ($mapel !== '') {
     $mapel = mysqli_real_escape_string($koneksi, $mapel);
     if ($where === "") {
-        $where = "WHERE j.mata_pelajaran_232410 = '$mapel'";
+        $where = "WHERE j.mata_pelajaran = '$mapel'";
     } else {
-        $where .= " AND j.mata_pelajaran_232410 = '$mapel'";
+        $where .= " AND j.mata_pelajaran = '$mapel'";
     }
 }
 
 $query = mysqli_query($koneksi, "
     SELECT 
-        a.id_absensi_232410,
-        a.tanggal_232410,
-        a.waktu_scan_232410,
-        a.status_kehadiran_232410,
-        s.nama_siswa_232410,
-        s.nisn_232410,
-        s.kelas_232410
-    FROM absensi_232410 AS a
-    JOIN siswa_232410 AS s
-      ON s.id_siswa_232410 = a.id_siswa_232410
-    LEFT JOIN kelas_232410 AS k
-       ON s.kelas_232410 = k.id_kelas_232410
-    LEFT JOIN jadwal_232410 AS j
-       ON j.id_kelas_232410 = k.id_kelas_232410
-      AND a.waktu_scan_232410 BETWEEN j.jam_mulai_232410 AND j.jam_selesai_232410
+        a.id_absensi,
+        a.tanggal,
+        a.waktu_scan,
+        a.status_kehadiran,
+        s.nama_siswa,
+        s.nisn,
+        s.kelas
+    FROM absensi AS a
+    JOIN siswa AS s
+      ON s.id_siswa = a.id_siswa
+    LEFT JOIN kelas AS k
+       ON s.kelas = k.id_kelas
+    LEFT JOIN jadwal AS j
+       ON j.id_kelas = k.id_kelas
+      AND a.waktu_scan BETWEEN j.jam_mulai AND j.jam_selesai
     $where
-    ORDER BY a.tanggal_232410 DESC, a.waktu_scan_232410 DESC
+    ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ");
 
 $no = 1;
@@ -85,7 +85,7 @@ $no = 1;
 if (mysqli_num_rows($query) > 0) {
     while ($row = mysqli_fetch_assoc($query)) {
 
-        $status = $row['status_kehadiran_232410'];
+        $status = $row['status_kehadiran'];
 
         if ($status == "Hadir") {
             $badge = "<span class='badge bg-success'>Hadir</span>";
@@ -98,14 +98,14 @@ if (mysqli_num_rows($query) > 0) {
         echo "
         <tr>
             <td class='text-center'>{$no}</td>
-            <td>{$row['nama_siswa_232410']}</td>
-            <td>{$row['nisn_232410']}</td>
-            <td>{$row['kelas_232410']}</td>
-            <td class='text-center'>{$row['tanggal_232410']}</td>
-            <td class='text-center'>{$row['waktu_scan_232410']}</td>
+            <td>{$row['nama_siswa']}</td>
+            <td>{$row['nisn']}</td>
+            <td>{$row['kelas']}</td>
+            <td class='text-center'>{$row['tanggal']}</td>
+            <td class='text-center'>{$row['waktu_scan']}</td>
             <td class='text-center'>{$badge}</td>
             <td class='text-center'>
-                <a href='edit/absen.php?id={$row['id_absensi_232410']}' class='btn btn-warning btn-sm text-white'>
+                <a href='edit/absen.php?id={$row['id_absensi']}' class='btn btn-warning btn-sm text-white'>
                     <i class='bi bi-pencil-square'></i>
                 </a>
             </td>

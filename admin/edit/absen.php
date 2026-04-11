@@ -26,20 +26,20 @@ $id = $_GET['id'];
 
 $query = mysqli_query($koneksi, "
     SELECT 
-        a.id_absensi_232410,
-        a.tanggal_232410,
-        a.waktu_scan_232410,
-        a.status_kehadiran_232410,
-        s.nama_siswa_232410,
-        s.nisn_232410,
-        s.kelas_232410,
-        k.nama_kelas_232410
-    FROM absensi_232410 AS a
-    JOIN siswa_232410 AS s
-      ON s.id_siswa_232410 = a.id_siswa_232410
-    LEFT JOIN kelas_232410 AS k
-      ON s.kelas_232410 = k.id_kelas_232410
-    WHERE a.id_absensi_232410 = '$id'
+        a.id_absensi,
+        a.tanggal,
+        a.waktu_scan,
+        a.status_kehadiran,
+        s.nama_siswa,
+        s.nisn,
+        s.kelas,
+        k.nama_kelas
+    FROM absensi AS a
+    JOIN siswa AS s
+      ON s.id_siswa = a.id_siswa
+    LEFT JOIN kelas AS k
+      ON s.kelas = k.id_kelas
+    WHERE a.id_absensi = '$id'
 ");
 
 if (mysqli_num_rows($query) == 0) {
@@ -75,20 +75,20 @@ $data = mysqli_fetch_assoc($query);
                 </h5>
 
                 <form action="../function.php" method="post">
-                    <input type="hidden" name="id_absensi" value="<?= $data['id_absensi_232410']; ?>">
+                    <input type="hidden" name="id_absensi" value="<?= $data['id_absensi']; ?>">
 
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Nama Siswa</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($data['nama_siswa_232410']); ?>" disabled>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($data['nama_siswa']); ?>" disabled>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">NISN</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($data['nisn_232410']); ?>" disabled>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($data['nisn']); ?>" disabled>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Kelas</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($data['nama_kelas_232410'] ?: $data['kelas_232410']); ?>" disabled>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($data['nama_kelas'] ?: $data['kelas']); ?>" disabled>
                         </div>
                     </div>
 
@@ -96,12 +96,12 @@ $data = mysqli_fetch_assoc($query);
                         <div class="col-md-4">
                             <label class="form-label">Tanggal</label>
                             <input type="date" name="tanggal" class="form-control"
-                                   value="<?= htmlspecialchars($data['tanggal_232410']); ?>" required>
+                                   value="<?= htmlspecialchars($data['tanggal']); ?>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Waktu Scan</label>
                             <input type="time" name="waktu_scan" class="form-control"
-                                   value="<?= htmlspecialchars($data['waktu_scan_232410']); ?>" required>
+                                   value="<?= htmlspecialchars($data['waktu_scan']); ?>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Status Kehadiran</label>

@@ -4,7 +4,7 @@
 session_start();
 
 // Koneksi ke database
-$koneksi = mysqli_connect("localhost", "root", "", "db_absensi_232410");
+$koneksi = mysqli_connect("localhost", "root", "", "db_absensi");
 
 
 

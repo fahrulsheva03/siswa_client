@@ -71,13 +71,13 @@ if(isset($_SESSION['login']) == false){
                         <tbody>
                             <?php
                             // Ambil data dari database
-                            $query = mysqli_query($koneksi, "SELECT id_kelas_232410, nama_kelas_232410 FROM kelas_232410 ORDER BY id_kelas_232410 DESC");
+                            $query = mysqli_query($koneksi, "SELECT id_kelas, nama_kelas FROM kelas ORDER BY id_kelas DESC");
                             $no = 1;
-                            $nama_tabel = 'kelas_232410';
+                            $nama_tabel = 'kelas';
                             if (mysqli_num_rows($query) > 0) {
                                 while ($data = mysqli_fetch_assoc($query)) {
-                                    $id      = $data['id_kelas_232410'];
-                                    $nama    = htmlspecialchars($data['nama_kelas_232410']);
+                                    $id      = $data['id_kelas'];
+                                    $nama    = htmlspecialchars($data['nama_kelas']);
                                     ?>
 
                                     <tr>

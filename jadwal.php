@@ -13,18 +13,18 @@ include 'includes/navbar.php';
 // ===============================
 // 1. Ambil ID siswa yg login
 // ===============================
-$id_siswa = $_SESSION['id_siswa_232410'];
+$id_siswa = $_SESSION['id_siswa'];
 
 
 // ===============================
 // 2. Ambil nama kelas siswa
 // ===============================
 $qKelas = mysqli_prepare($koneksi, "
-    SELECT k.nama_kelas_232410 
-    FROM siswa_232410 AS s
-    JOIN kelas_232410 AS k 
-      ON s.kelas_232410 = k.id_kelas_232410
-    WHERE id_siswa_232410 = ?
+    SELECT k.nama_kelas 
+    FROM siswa AS s
+    JOIN kelas AS k 
+      ON s.kelas = k.id_kelas
+    WHERE id_siswa = ?
 ");
 mysqli_stmt_bind_param($qKelas, "i", $id_siswa);
 mysqli_stmt_execute($qKelas);
@@ -35,15 +35,15 @@ mysqli_stmt_close($qKelas);
 
 $qJadwal = mysqli_prepare($koneksi, "
     SELECT 
-        hari_232410,
-        jam_mulai_232410,
-        jam_selesai_232410,
-        mata_pelajaran_232410,
-        nama_guru_232410
-    FROM jadwal_232410
-    WHERE id_kelas_232410 = (SELECT id_kelas_232410 FROM kelas_232410 WHERE nama_kelas_232410 = ?)
-    ORDER BY FIELD(hari_232410, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
-             jam_mulai_232410 ASC
+        hari,
+        jam_mulai,
+        jam_selesai,
+        mata_pelajaran,
+        nama_guru
+    FROM jadwal
+    WHERE id_kelas = (SELECT id_kelas FROM kelas WHERE nama_kelas = ?)
+    ORDER BY FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
+             jam_mulai ASC
 ");
 mysqli_stmt_bind_param($qJadwal, "s", $nama_kelas);
 mysqli_stmt_execute($qJadwal);
@@ -112,12 +112,12 @@ $waktuSekarang = date('H:i:s');
       $adaDataTampil = false;
 
       while ($row = mysqli_fetch_assoc($hasil)) {
-        $hari   = $row['hari_232410'];
-        $jamMulai = $row['jam_mulai_232410'];
-        $jamSelesai = $row['jam_selesai_232410'];
+        $hari   = $row['hari'];
+        $jamMulai = $row['jam_mulai'];
+        $jamSelesai = $row['jam_selesai'];
         $jam    = $jamMulai . " - " . $jamSelesai;
-        $mapel  = $row['mata_pelajaran_232410'];
-        $guru   = $row['nama_guru_232410'] ?: "-";
+        $mapel  = $row['mata_pelajaran'];
+        $guru   = $row['nama_guru'] ?: "-";
         $kelas  = $nama_kelas;
         $ruangan = 'Ruang ' . $nama_kelas;
 

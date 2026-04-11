@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Makassar');
 
 // Fungsi: Memproses data QR yang discan siswa untuk mencatat absensi pada jadwal yang sesuai.
 // Parameter input:
-// - $_SESSION['id_siswa_232410']: identitas siswa yang sedang login dan melakukan scan.
+// - $_SESSION['id_siswa']: identitas siswa yang sedang login dan melakukan scan.
 // - $_POST['qr']: nilai QR yang diterima dari client, berisi nama file atau kode QR siswa.
 // Return value:
 // - Mengirimkan string status ke client (Hadir, Terlambat, ALREADY, QR_INVALID, NO_CLASS, NOT_STARTED, dll.) dan tidak mengembalikan nilai PHP.
@@ -17,12 +17,12 @@ date_default_timezone_set('Asia/Makassar');
 // =====================================================
 // VALIDASI LOGIN
 // =====================================================
-if (!isset($_SESSION['id_siswa_232410'])) {
+if (!isset($_SESSION['id_siswa'])) {
     echo "NOT_LOGIN";
     exit;
 }
 
-$id_siswa = $_SESSION['id_siswa_232410'];
+$id_siswa = $_SESSION['id_siswa'];
 
 // =====================================================
 // VALIDASI QR
@@ -38,9 +38,9 @@ $qr = $_POST['qr'];
 // AMBIL QR & KELAS SISWA
 // =====================================================
 $q = mysqli_prepare($koneksi, "
-    SELECT qr_code_232410, kelas_232410 
-    FROM siswa_232410 
-    WHERE id_siswa_232410 = ?
+    SELECT qr_code, kelas 
+    FROM siswa 
+    WHERE id_siswa = ?
 ");
 mysqli_stmt_bind_param($q, "i", $id_siswa);
 mysqli_stmt_execute($q);
@@ -60,9 +60,9 @@ if ($qr_siswa == "" || $qr !== $qr_siswa) {
 $tgl = date("Y-m-d");
 
 $q2 = mysqli_prepare($koneksi, "
-    SELECT id_absensi_232410 
-    FROM absensi_232410 
-    WHERE id_siswa_232410 = ? AND tanggal_232410 = ?
+    SELECT id_absensi 
+    FROM absensi 
+    WHERE id_siswa = ? AND tanggal = ?
 ");
 mysqli_stmt_bind_param($q2, "is", $id_siswa, $tgl);
 mysqli_stmt_execute($q2);
@@ -92,11 +92,11 @@ $hariIndo = $hariMap[$hariInggris];
 
 // Ambil semua jadwal hari ini
 $qJadwal = mysqli_prepare($koneksi, "
-    SELECT mata_pelajaran_232410, jam_mulai_232410, jam_selesai_232410
-    FROM jadwal_232410
-    WHERE id_kelas_232410 = ?
-    AND hari_232410 = ?
-    ORDER BY jam_mulai_232410 ASC
+    SELECT mata_pelajaran, jam_mulai, jam_selesai
+    FROM jadwal
+    WHERE id_kelas = ?
+    AND hari = ?
+    ORDER BY jam_mulai ASC
 ");
 mysqli_stmt_bind_param($qJadwal, "is", $kelas_siswa, $hariIndo);
 mysqli_stmt_execute($qJadwal);
@@ -110,9 +110,9 @@ $now = date("H:i:s");
 // =====================================================
 while ($row = mysqli_fetch_assoc($result)) {
 
-    $mapel = $row['mata_pelajaran_232410'];
-    $jam_mulai = $row['jam_mulai_232410'];
-    $jam_selesai = $row['jam_selesai_232410'];
+    $mapel = $row['mata_pelajaran'];
+    $jam_mulai = $row['jam_mulai'];
+    $jam_selesai = $row['jam_selesai'];
 
     // 1. Scan sebelum pelajaran dimulai → TOLAK
     if ($now < $jam_mulai) {
@@ -154,8 +154,8 @@ if (!$foundSchedule) {
 // SIMPAN ABSENSI
 // =====================================================
 $q3 = mysqli_prepare($koneksi, "
-    INSERT INTO absensi_232410
-    (id_siswa_232410, tanggal_232410, waktu_scan_232410, status_kehadiran_232410)
+    INSERT INTO absensi
+    (id_siswa, tanggal, waktu_scan, status_kehadiran)
     VALUES (?, ?, ?, ?)
 ");
 mysqli_stmt_bind_param($q3, "isss", $id_siswa, $tgl, $now, $status);

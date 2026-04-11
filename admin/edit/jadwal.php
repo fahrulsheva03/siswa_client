@@ -4,7 +4,7 @@ require '../layouts/header.php';
 
 // Fungsi: Mengambil data satu jadwal pelajaran berdasarkan ID dan menampilkannya ke dalam form edit.
 // Parameter input:
-// - $_GET['id']: ID jadwal yang akan dicari di tabel jadwal_232410.
+// - $_GET['id']: ID jadwal yang akan dicari di tabel jadwal.
 // Return value:
 // - Tidak mengembalikan nilai; menampilkan form HTML yang ketika disubmit dikirim ke admin/function.php.
 // Contoh penggunaan:
@@ -21,7 +21,7 @@ $id_jadwal = $_GET['id'];
 
 // Ambil data jadwal berdasarkan ID
 $q = mysqli_query($koneksi, "
-    SELECT * FROM jadwal_232410 WHERE id_jadwal_232410 = '$id_jadwal'
+    SELECT * FROM jadwal WHERE id_jadwal = '$id_jadwal'
 ");
 
 if (mysqli_num_rows($q) == 0) {
@@ -55,7 +55,7 @@ $data = mysqli_fetch_assoc($q);
             <div class="card p-4">
                 <form action="../function.php" method="post">
 
-                    <input type="hidden" name="id_jadwal" value="<?= $data['id_jadwal_232410']; ?>">
+                    <input type="hidden" name="id_jadwal" value="<?= $data['id_jadwal']; ?>">
 
                     <div class="row mb-3">
 
@@ -64,12 +64,12 @@ $data = mysqli_fetch_assoc($q);
                             <label class="form-label">Kelas</label>
                             <select name="id_kelas" class="form-select" required>
                                 <?php
-                                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas_232410 ORDER BY nama_kelas_232410 ASC");
+                                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas ORDER BY nama_kelas ASC");
 
                                 while ($k = mysqli_fetch_assoc($kelas)) {
-                                    $selected = ($k['id_kelas_232410'] == $data['id_kelas_232410']) ? "selected" : "";
-                                    echo "<option value='{$k['id_kelas_232410']}' $selected>
-                                        {$k['nama_kelas_232410']}
+                                    $selected = ($k['id_kelas'] == $data['id_kelas']) ? "selected" : "";
+                                    echo "<option value='{$k['id_kelas']}' $selected>
+                                        {$k['nama_kelas']}
                                       </option>";
                                 }
                                 ?>
@@ -80,14 +80,14 @@ $data = mysqli_fetch_assoc($q);
                         <div class="col-md-3">
                             <label class="form-label">Mata Pelajaran</label>
                             <input type="text" name="mapel" class="form-control"
-                                value="<?= htmlspecialchars($data['mata_pelajaran_232410']); ?>" required>
+                                value="<?= htmlspecialchars($data['mata_pelajaran']); ?>" required>
                         </div>
 
                         <!-- Nama Guru -->
                         <div class="col-md-3">
                             <label class="form-label">Nama Guru</label>
                             <input type="text" name="nama_guru" class="form-control"
-                                   value="<?= htmlspecialchars($data['nama_guru_232410']); ?>" required>
+                                   value="<?= htmlspecialchars($data['nama_guru']); ?>" required>
                         </div>
 
                         <!-- Hari -->
@@ -97,7 +97,7 @@ $data = mysqli_fetch_assoc($q);
                                 <?php
                                 $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                                 foreach ($hariList as $h) {
-                                    $selected = ($h == $data['hari_232410']) ? "selected" : "";
+                                    $selected = ($h == $data['hari']) ? "selected" : "";
                                     echo "<option $selected>$h</option>";
                                 }
                                 ?>
@@ -111,13 +111,13 @@ $data = mysqli_fetch_assoc($q);
                         <div class="col-md-6">
                             <label class="form-label">Jam Mulai</label>
                             <input type="time" name="jam_mulai" class="form-control"
-                                value="<?= $data['jam_mulai_232410']; ?>" required>
+                                value="<?= $data['jam_mulai']; ?>" required>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Jam Selesai</label>
                             <input type="time" name="jam_selesai" class="form-control"
-                                value="<?= $data['jam_selesai_232410']; ?>" required>
+                                value="<?= $data['jam_selesai']; ?>" required>
                         </div>
                     </div>
 

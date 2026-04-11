@@ -3,7 +3,7 @@ require 'koneksi.php';
 
 // Fungsi: Menyediakan antarmuka scan QR untuk siswa dan menghubungkannya dengan proses pencatatan absensi.
 // Parameter input:
-// - $_SESSION['id_siswa_232410']: identitas siswa yang sudah login dan berhak mengakses halaman scan.
+// - $_SESSION['id_siswa']: identitas siswa yang sudah login dan berhak mengakses halaman scan.
 // - Input QR dari kamera perangkat atau dari URL gambar yang ditempelkan pengguna.
 // Return value:
 // - Tidak mengembalikan nilai; menampilkan status absensi di halaman berdasarkan respon dari proses_scan.php.
@@ -11,7 +11,7 @@ require 'koneksi.php';
 // - Diakses setelah siswa login dan menekan tombol "Scan QR untuk Absen" dari dashboard.
 // Catatan penting:
 // - Menggunakan library html5-qrcode untuk membaca QR dari kamera serta memanfaatkan fetch API untuk mengirim data ke server.
-if (!isset($_SESSION['id_siswa_232410'])) {
+if (!isset($_SESSION['id_siswa'])) {
   echo "<script>
             alert('Anda belum login!');
             window.location.href='login_siswa.php';

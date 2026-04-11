@@ -7,7 +7,7 @@ require '../layouts/header.php';
 
 // Fungsi: Mengambil data siswa berdasarkan ID dan menampilkannya dalam form untuk proses pengeditan.
 // Parameter input:
-// - $_GET['id']: ID siswa yang akan diedit dan diambil datanya dari tabel siswa_232410.
+// - $_GET['id']: ID siswa yang akan diedit dan diambil datanya dari tabel siswa.
 // Return value:
 // - Tidak mengembalikan nilai; menampilkan form HTML yang ketika disubmit akan dikirim ke admin/function.php.
 // Contoh penggunaan:
@@ -17,7 +17,7 @@ require '../layouts/header.php';
 // Ambil ID dari URL
 if (isset($_GET['id'])) {
   $id = $_GET['id'];
-  $query = mysqli_query($koneksi, "SELECT * FROM siswa_232410 WHERE id_siswa_232410='$id'");
+  $query = mysqli_query($koneksi, "SELECT * FROM siswa WHERE id_siswa='$id'");
   $data = mysqli_fetch_assoc($query);
 
   // Jika ID tidak ditemukan
@@ -55,23 +55,23 @@ if (isset($_GET['id'])) {
         
         <form action="../function.php" method="post">
           <!-- Hidden ID -->
-          <input type="hidden" name="id" value="<?= $data['id_siswa_232410']; ?>">
+          <input type="hidden" name="id" value="<?= $data['id_siswa']; ?>">
 
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Nama Siswa</label>
               <input type="text" name="nama" class="form-control" 
-                     value="<?= htmlspecialchars($data['nama_siswa_232410']); ?>" required>
+                     value="<?= htmlspecialchars($data['nama_siswa']); ?>" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">NIS</label>
               <input type="text" name="nisn" class="form-control" 
-                     value="<?= htmlspecialchars($data['nisn_232410']); ?>" required>
+                     value="<?= htmlspecialchars($data['nisn']); ?>" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Password</label>
               <input type="text" name="password" class="form-control" 
-                     value="<?= htmlspecialchars($data['password_232410']); ?>" required>
+                     value="<?= htmlspecialchars($data['password']); ?>" required>
             </div>
           </div>
 
@@ -81,10 +81,10 @@ if (isset($_GET['id'])) {
               <select name="kelas" class="form-select" required>
                 <option value="">Pilih kelas</option>
                 <?php
-                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas_232410 ORDER BY id_kelas_232410 ASC");
+                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas ORDER BY id_kelas ASC");
                 while ($k = mysqli_fetch_assoc($kelas)) {
-                  $selected = ($k['id_kelas_232410'] == $data['kelas_232410']) ? "selected" : "";
-                  echo "<option value='{$k['id_kelas_232410']}' $selected>{$k['nama_kelas_232410']}</option>";
+                  $selected = ($k['id_kelas'] == $data['kelas']) ? "selected" : "";
+                  echo "<option value='{$k['id_kelas']}' $selected>{$k['nama_kelas']}</option>";
                 }
                 ?>
               </select>
@@ -92,8 +92,8 @@ if (isset($_GET['id'])) {
             <div class="col-md-6">
               <label class="form-label">Status</label>
               <select name="status" class="form-select">
-                <option value="Aktif" <?= ($data['status_232410'] == 'Aktif') ? 'selected' : ''; ?>>Aktif</option>
-                <option value="Nonaktif" <?= ($data['status_232410'] == 'Nonaktif') ? 'selected' : ''; ?>>Nonaktif</option>
+                <option value="Aktif" <?= ($data['status'] == 'Aktif') ? 'selected' : ''; ?>>Aktif</option>
+                <option value="Nonaktif" <?= ($data['status'] == 'Nonaktif') ? 'selected' : ''; ?>>Nonaktif</option>
               </select>
             </div>
           </div>

@@ -7,7 +7,7 @@ require '../layouts/header.php';
 
 // Fungsi: Memuat data satu kelas tertentu ke dalam form sehingga admin dapat mengeditnya.
 // Parameter input:
-// - $_GET['id']: ID kelas yang akan dicari pada tabel kelas_232410.
+// - $_GET['id']: ID kelas yang akan dicari pada tabel kelas.
 // Return value:
 // - Tidak mengembalikan nilai; menampilkan form HTML yang hasil submit-nya dikirim ke admin/function.php.
 // Contoh penggunaan:
@@ -17,7 +17,7 @@ require '../layouts/header.php';
 // Ambil ID dari URL
 if (isset($_GET['id'])) {
   $id = $_GET['id'];
-  $query = mysqli_query($koneksi, "SELECT * FROM kelas_232410 WHERE id_kelas_232410='$id'");
+  $query = mysqli_query($koneksi, "SELECT * FROM kelas WHERE id_kelas='$id'");
   $data = mysqli_fetch_assoc($query);
 
   // Jika ID tidak ditemukan
@@ -55,18 +55,18 @@ if (isset($_GET['id'])) {
         
         <form action="../function.php" method="post">
           <!-- Hidden ID -->
-          <input type="hidden" name="id" value="<?= $data['id_kelas_232410']; ?>">
+          <input type="hidden" name="id" value="<?= $data['id_kelas']; ?>">
 
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Nama Kelas</label>
               <input type="text" name="nama" class="form-control" 
-                     value="<?= htmlspecialchars($data['nama_kelas_232410']); ?>" required>
+                     value="<?= htmlspecialchars($data['nama_kelas']); ?>" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Wali Kelas</label>
               <input type="text" name="wali" class="form-control" 
-                     value="<?= htmlspecialchars($data['wali_kelas_232410']); ?>" required>
+                     value="<?= htmlspecialchars($data['wali_kelas']); ?>" required>
             </div>
           </div>
 

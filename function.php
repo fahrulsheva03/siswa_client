@@ -22,14 +22,14 @@ if (isset($_POST['login_admin'])) {
         $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
         // Query cek email di tabel admin
-        $query = "SELECT * FROM admin_232410 WHERE email_admin_232410 = '$email' LIMIT 1";
+        $query = "SELECT * FROM admin WHERE email_admin = '$email' LIMIT 1";
         $result = mysqli_query($koneksi, $query);
 
         if (mysqli_num_rows($result) == 1) {
             $data = mysqli_fetch_assoc($result);
 
             // Cek apakah password sesuai
-            if ($password === $data['password_admin_232410']) {
+            if ($password === $data['password_admin']) {
 
                 // Simpan semua data admin ke dalam session
                 foreach ($data as $key => $value) {
@@ -66,14 +66,14 @@ if (isset($_POST["login_siswa"])) {
         $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
         // Query cek email di tabel admin
-        $query = "SELECT * FROM siswa_232410 WHERE nisn_232410 = '$nisn' LIMIT 1";
+        $query = "SELECT * FROM siswa WHERE nisn = '$nisn' LIMIT 1";
         $result = mysqli_query($koneksi, $query);
 
         if (mysqli_num_rows($result) == 1) {
             $data = mysqli_fetch_assoc($result);
 
             // Cek apakah password sesuai
-            if ($password === $data['password_232410']) {
+            if ($password === $data['password']) {
 
                 // Simpan semua data admin ke dalam session
                 foreach ($data as $key => $value) {
@@ -112,14 +112,14 @@ if (isset($_POST['registrasi'])) {
     $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
     // Validasi: cek apakah email sudah digunakan
-    $cek_email = mysqli_query($koneksi, "SELECT * FROM admin_232410 WHERE email_admin_232410='$email'");
+    $cek_email = mysqli_query($koneksi, "SELECT * FROM admin WHERE email_admin='$email'");
     if (mysqli_num_rows($cek_email) > 0) {
         echo "<script>alert('Email sudah terdaftar, silakan gunakan email lain!'); window.location.href='register.php';</script>";
         exit();
     }
 
     // Simpan data admin baru
-    $query = "INSERT INTO admin_232410 (nama_admin_232410, email_admin_232410, password_admin_232410, created_at_232410) 
+    $query = "INSERT INTO admin (nama_admin, email_admin, password_admin, created_at) 
               VALUES ('$nama', '$email', '$password', NOW())";
 
     if (mysqli_query($koneksi, $query)) {

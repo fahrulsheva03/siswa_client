@@ -4,13 +4,13 @@ require 'koneksi.php';
 // Fungsi: Menampilkan riwayat lengkap absensi siswa yang sedang login beserta jadwal terkait.
 // Parameter input:
 // - $_SESSION['login_siswa']: status login siswa yang menjadi syarat akses halaman.
-// - $_SESSION['id_siswa_232410']: ID siswa yang digunakan dalam query riwayat absensi.
+// - $_SESSION['id_siswa']: ID siswa yang digunakan dalam query riwayat absensi.
 // Return value:
 // - Tidak mengembalikan nilai; menghasilkan tabel HTML berisi daftar absensi dengan tanggal, hari, mapel, waktu, status, dan keterangan.
 // Contoh penggunaan:
 // - Diakses melalui menu Riwayat setelah siswa login ke sistem.
 // Catatan penting:
-// - Menggunakan LEFT JOIN ke jadwal_232410 sehingga tetap menampilkan riwayat meskipun jadwal sudah berubah atau tidak ditemukan.
+// - Menggunakan LEFT JOIN ke jadwal sehingga tetap menampilkan riwayat meskipun jadwal sudah berubah atau tidak ditemukan.
 if (!isset($_SESSION['login_siswa'])) {
   echo "<script>alert('Anda belum login!');
      window.location.href='login_siswa.php';</script>";
@@ -21,26 +21,26 @@ include 'includes/header.php';
 include 'includes/navbar.php';
 
 // ID siswa yang login
-$id_siswa = $_SESSION['id_siswa_232410'];
+$id_siswa = $_SESSION['id_siswa'];
 
 // QUERY RIWAYAT ABSEN LENGKAP + JADWAL (MAPEL & HARI)
 $query = "
     SELECT 
-        a.tanggal_232410,
-        a.waktu_scan_232410,
-        a.status_kehadiran_232410,
-        j.mata_pelajaran_232410,
-        j.hari_232410
-    FROM absensi_232410 a
-    JOIN siswa_232410 s 
-        ON a.id_siswa_232410 = s.id_siswa_232410
-    JOIN kelas_232410 k
-        ON s.kelas_232410 = k.id_kelas_232410
-    LEFT JOIN jadwal_232410 j
-        ON j.id_kelas_232410 = k.id_kelas_232410
-        AND a.waktu_scan_232410 BETWEEN j.jam_mulai_232410 AND j.jam_selesai_232410
-    WHERE a.id_siswa_232410 = ?
-    ORDER BY a.tanggal_232410 DESC, a.waktu_scan_232410 DESC
+        a.tanggal,
+        a.waktu_scan,
+        a.status_kehadiran,
+        j.mata_pelajaran,
+        j.hari
+    FROM absensi a
+    JOIN siswa s 
+        ON a.id_siswa = s.id_siswa
+    JOIN kelas k
+        ON s.kelas = k.id_kelas
+    LEFT JOIN jadwal j
+        ON j.id_kelas = k.id_kelas
+        AND a.waktu_scan BETWEEN j.jam_mulai AND j.jam_selesai
+    WHERE a.id_siswa = ?
+    ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ";
 
 $stmt = mysqli_prepare($koneksi, $query);
@@ -72,12 +72,12 @@ $result = mysqli_stmt_get_result($stmt);
 
       while ($row = mysqli_fetch_assoc($result)) {
 
-        $hari   = $row['hari_232410'] ?: "-";
-        $mapel  = $row['mata_pelajaran_232410'] ?: "-";
+        $hari   = $row['hari'] ?: "-";
+        $mapel  = $row['mata_pelajaran'] ?: "-";
 
-        $tanggal = date("d-m-Y", strtotime($row['tanggal_232410']));
-        $waktu   = $row['waktu_scan_232410'] ?: "-";
-        $status  = $row['status_kehadiran_232410'];
+        $tanggal = date("d-m-Y", strtotime($row['tanggal']));
+        $waktu   = $row['waktu_scan'] ?: "-";
+        $status  = $row['status_kehadiran'];
 
         if ($status == "Hadir") {
           $badge = "<span class='badge bg-success'>Hadir</span>";
