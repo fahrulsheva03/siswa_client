@@ -144,7 +144,7 @@ $queryRiwayat = mysqli_query($koneksi, "
           <div class="d-flex gap-2">
             <a href="siswa.php" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i>Tambah Siswa</a>
             <a href="kelas.php" class="btn btn-outline-primary btn-sm"><i class="bi bi-grid-3x3-gap me-1"></i>Kelola Kelas</a>
-            <a href="jadwal.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-calendar-week me-1"></i>Kelola Jadwal</a>
+            <!-- <a href="jadwal.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-calendar-week me-1"></i>Kelola Jadwal</a> -->
           </div>
         </div>
       </div>
