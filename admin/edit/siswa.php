@@ -81,13 +81,40 @@ if (isset($_GET['id'])) {
               <select name="kelas" class="form-select" required>
                 <option value="">Pilih kelas</option>
                 <?php
-                $kelas = mysqli_query($koneksi, "SELECT * FROM kelas ORDER BY id_kelas ASC");
+                $kelasAktif = (int) ($data['id_kelas'] ?? $data['kelas'] ?? 0);
+                $kelas = mysqli_query($koneksi, "
+                  SELECT 
+                    k.id_kelas,
+                    k.nama_kelas,
+                    COALESCE(k.max_siswa, 0) AS max_siswa,
+                    COALESCE(s.jumlah_siswa, 0) AS jumlah_siswa
+                  FROM kelas AS k
+                  LEFT JOIN (
+                    SELECT COALESCE(id_kelas, kelas) AS kelas_id, COUNT(*) AS jumlah_siswa
+                    FROM siswa
+                    GROUP BY COALESCE(id_kelas, kelas)
+                  ) AS s ON s.kelas_id = k.id_kelas
+                  ORDER BY k.id_kelas ASC
+                ");
                 while ($k = mysqli_fetch_assoc($kelas)) {
-                  $selected = ($k['id_kelas'] == $data['kelas']) ? "selected" : "";
-                  echo "<option value='{$k['id_kelas']}' $selected>{$k['nama_kelas']}</option>";
+                  $idKelas = (int) $k['id_kelas'];
+                  $maxSiswa = (int) $k['max_siswa'];
+                  $jumlahSiswa = (int) $k['jumlah_siswa'];
+                  $isCurrent = $idKelas === $kelasAktif;
+                  $isFull = $maxSiswa > 0 && $jumlahSiswa >= $maxSiswa;
+                  $selected = $isCurrent ? "selected" : "";
+                  $disabled = ($isFull && !$isCurrent) ? "disabled" : "";
+                  $fullAttr = $isFull ? "1" : "0";
+                  $currentAttr = $isCurrent ? "1" : "0";
+                  $label = $isFull && !$isCurrent
+                    ? "{$k['nama_kelas']} (Penuh {$jumlahSiswa}/{$maxSiswa})"
+                    : "{$k['nama_kelas']} ({$jumlahSiswa}/{$maxSiswa})";
+                  echo "<option value='{$k['id_kelas']}' $selected $disabled data-full='{$fullAttr}' data-current='{$currentAttr}'>{$label}</option>";
                 }
                 ?>
               </select>
+              <div id="kelasStatusInfo" class="mt-2"></div>
+              <small class="text-muted">Kelas penuh tidak bisa dipilih, kecuali kelas siswa saat ini.</small>
             </div>
             <div class="col-md-6">
               <label class="form-label">Status</label>
@@ -110,5 +137,40 @@ if (isset($_GET['id'])) {
     </div>
   </div>
 
+<script>
+(function () {
+  var kelasSelect = document.querySelector('select[name="kelas"]');
+  var infoBox = document.getElementById('kelasStatusInfo');
+  if (!kelasSelect || !infoBox) {
+    return;
+  }
+
+  function renderInfo() {
+    var selected = kelasSelect.options[kelasSelect.selectedIndex];
+    if (!selected || !selected.value) {
+      infoBox.innerHTML = '';
+      return;
+    }
+
+    var isFull = selected.getAttribute('data-full') === '1';
+    var isCurrent = selected.getAttribute('data-current') === '1';
+
+    if (isFull && isCurrent) {
+      infoBox.innerHTML = '<span class="badge bg-warning text-dark">Kelas saat ini sudah penuh, tetapi tetap bisa dipertahankan</span>';
+      return;
+    }
+
+    if (isFull) {
+      infoBox.innerHTML = '<span class="badge bg-danger">Kelas penuh</span>';
+      return;
+    }
+
+    infoBox.innerHTML = '<span class="badge bg-success">Kelas tersedia</span>';
+  }
+
+  kelasSelect.addEventListener('change', renderInfo);
+  renderInfo();
+})();
+</script>
 </body>
 </html>

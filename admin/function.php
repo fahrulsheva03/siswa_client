@@ -31,11 +31,34 @@ if (isset($_POST['tambah_siswa'])) {
   $kelas  = mysqli_real_escape_string($koneksi, $_POST['kelas']);
   $password = mysqli_real_escape_string($koneksi, $_POST['password']);
   $status = mysqli_real_escape_string($koneksi, $_POST['status']);
+  $kelasId = (int) $kelas;
 
   // Validasi sederhana
-  if (empty($nama) || empty($nisn) || $kelas == "Pilih kelas") {
+  if (empty($nama) || empty($nisn) || $kelasId < 1) {
     echo "<script>
                 alert('Semua field harus diisi dengan benar!');
+                window.history.back();
+              </script>";
+    exit;
+  }
+
+  $cekKelas = mysqli_query($koneksi, "SELECT COALESCE(max_siswa, 0) AS max_siswa FROM kelas WHERE id_kelas = '$kelasId' LIMIT 1");
+  if (!$cekKelas || mysqli_num_rows($cekKelas) === 0) {
+    echo "<script>
+                alert('Kelas tidak valid!');
+                window.history.back();
+              </script>";
+    exit;
+  }
+
+  $kelasData = mysqli_fetch_assoc($cekKelas);
+  $maxSiswa = (int) $kelasData['max_siswa'];
+  $cekJumlahSiswa = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa WHERE id_kelas = '$kelasId'");
+  $jumlahSiswa = (int) mysqli_fetch_assoc($cekJumlahSiswa)['total'];
+
+  if ($maxSiswa > 0 && $jumlahSiswa >= $maxSiswa) {
+    echo "<script>
+                alert('Kelas sudah penuh! Pilih kelas lain.');
                 window.history.back();
               </script>";
     exit;
@@ -46,7 +69,7 @@ if (isset($_POST['tambah_siswa'])) {
   // ===============================
    $query = "INSERT INTO siswa 
             (nama_siswa, nis, nisn, id_kelas, kelas, password, status) 
-             VALUES ('$nama', '$nisn', '$nisn', '$kelas', '$kelas', '$password', '$status')";
+             VALUES ('$nama', '$nisn', '$nisn', '$kelasId', '$kelasId', '$password', '$status')";
 
   if (mysqli_query($koneksi, $query)) {
 
@@ -111,12 +134,56 @@ if (isset($_POST['tambah_siswa'])) {
 // - Perubahan password langsung menimpa nilai lama tanpa proses enkripsi maupun pencatatan riwayat.
 // Edit data siswa
 if (isset($_POST['edit_siswa'])) {
-  $id     = $_POST['id'];
+  $id     = (int) $_POST['id'];
   $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
   $nisn   = mysqli_real_escape_string($koneksi, $_POST['nisn']);
-  $kelas  = mysqli_real_escape_string($koneksi, $_POST['kelas']);
+  $kelas  = (int) $_POST['kelas'];
   $status = mysqli_real_escape_string($koneksi, $_POST['status']);
   $password = mysqli_real_escape_string($koneksi, $_POST['password']);
+
+  if (empty($nama) || empty($nisn) || $kelas < 1 || $id < 1) {
+    echo "<script>
+                alert('Semua field harus diisi dengan benar!');
+                window.history.back();
+              </script>";
+    exit;
+  }
+
+  $cekSiswa = mysqli_query($koneksi, "SELECT id_kelas FROM siswa WHERE id_siswa = '$id' LIMIT 1");
+  if (!$cekSiswa || mysqli_num_rows($cekSiswa) === 0) {
+    echo "<script>
+                alert('Data siswa tidak ditemukan!');
+                window.history.back();
+              </script>";
+    exit;
+  }
+
+  $siswaLama = mysqli_fetch_assoc($cekSiswa);
+  $kelasLama = (int) ($siswaLama['id_kelas'] ?? 0);
+
+  if ($kelas !== $kelasLama) {
+    $cekKelas = mysqli_query($koneksi, "SELECT COALESCE(max_siswa, 0) AS max_siswa FROM kelas WHERE id_kelas = '$kelas' LIMIT 1");
+    if (!$cekKelas || mysqli_num_rows($cekKelas) === 0) {
+      echo "<script>
+                  alert('Kelas tidak valid!');
+                  window.history.back();
+                </script>";
+      exit;
+    }
+
+    $kelasData = mysqli_fetch_assoc($cekKelas);
+    $maxSiswa = (int) $kelasData['max_siswa'];
+    $cekJumlahSiswa = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM siswa WHERE id_kelas = '$kelas'");
+    $jumlahSiswa = (int) mysqli_fetch_assoc($cekJumlahSiswa)['total'];
+
+    if ($maxSiswa > 0 && $jumlahSiswa >= $maxSiswa) {
+      echo "<script>
+                  alert('Kelas tujuan sudah penuh! Pilih kelas lain.');
+                  window.history.back();
+                </script>";
+      exit;
+    }
+  }
 
   $update = mysqli_query($koneksi, "UPDATE siswa 
     SET nama_siswa='$nama', 

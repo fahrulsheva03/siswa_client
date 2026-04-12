@@ -48,14 +48,35 @@ if(isset($_SESSION['login']) == false){
             <div class="col-md-6">
               <label class="form-label">Kelas</label>
               <select name="kelas" class="form-select">
-                <option selected>Pilih kelas</option>
+                <option value="" selected>Pilih kelas</option>
                 <?php
-                $query = mysqli_query($koneksi, "SELECT * FROM kelas ORDER BY id_kelas ASC");
+                $query = mysqli_query($koneksi, "
+                  SELECT 
+                    k.id_kelas,
+                    k.nama_kelas,
+                    COALESCE(k.max_siswa, 0) AS max_siswa,
+                    COALESCE(s.jumlah_siswa, 0) AS jumlah_siswa
+                  FROM kelas AS k
+                  LEFT JOIN (
+                    SELECT COALESCE(id_kelas, kelas) AS kelas_id, COUNT(*) AS jumlah_siswa
+                    FROM siswa
+                    GROUP BY COALESCE(id_kelas, kelas)
+                  ) AS s ON s.kelas_id = k.id_kelas
+                  ORDER BY k.id_kelas ASC
+                ");
                 while ($k = mysqli_fetch_assoc($query)) {
-                  echo "<option value='{$k['id_kelas']}'>{$k['nama_kelas']}</option>";
+                  $maxSiswa = (int) $k['max_siswa'];
+                  $jumlahSiswa = (int) $k['jumlah_siswa'];
+                  $isFull = $maxSiswa > 0 && $jumlahSiswa >= $maxSiswa;
+                  $disabled = $isFull ? "disabled" : "";
+                  $label = $isFull
+                    ? "{$k['nama_kelas']} (Penuh {$jumlahSiswa}/{$maxSiswa})"
+                    : "{$k['nama_kelas']} ({$jumlahSiswa}/{$maxSiswa})";
+                  echo "<option value='{$k['id_kelas']}' {$disabled}>{$label}</option>";
                 }
                 ?>
               </select>
+              <small class="text-muted">Kelas yang penuh akan otomatis dinonaktifkan.</small>
             </div>
             <div class="col-md-6">
               <label class="form-label">Status</label>
