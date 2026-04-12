@@ -155,17 +155,17 @@
                 </div>
             </div>
             <div class="page-separator justify-content-center m-0">
-                <div class="page-separator__text">or Register</div>
+                <div class="page-separator__text">or Login Siswa</div>
             </div>
             <div class="bg-body pt-32pt pb-32pt pb-md-64pt text-center">
                 <div class="container page__container mb-3">
                     <a href="login_siswa.php"
                         class="btn btn-dark btn-block-xs">login siswa</a>
                 </div>
-                <div class="container page__container">
+                <!-- <div class="container page__container">
                     <a href="registrasi.php"
                         class="btn btn-secondary btn-block-xs">Registrasi</a>
-                </div>
+                </div> -->
             </div>
 
             <!-- // END Page Content -->

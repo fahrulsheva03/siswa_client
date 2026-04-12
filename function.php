@@ -22,14 +22,14 @@ if (isset($_POST['login_admin'])) {
         $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
         // Query cek email di tabel admin
-        $query = "SELECT * FROM admin WHERE email_admin = '$email' LIMIT 1";
+        $query = "SELECT * FROM admin WHERE email = '$email' LIMIT 1";
         $result = mysqli_query($koneksi, $query);
 
         if (mysqli_num_rows($result) == 1) {
             $data = mysqli_fetch_assoc($result);
 
             // Cek apakah password sesuai
-            if ($password === $data['password_admin']) {
+            if ($password === $data['password']) {
 
                 // Simpan semua data admin ke dalam session
                 foreach ($data as $key => $value) {
