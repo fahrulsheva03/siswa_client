@@ -93,7 +93,7 @@ if(isset($_SESSION['login']) == false){
         
 
         // Ambil data dari tabel siswa + join kelas
-        $query = mysqli_query($koneksi, "SELECT *, k.nama_kelas FROM siswa AS s JOIN kelas AS k ON s.kelas = k.id_kelas ORDER BY id_siswa DESC");
+        $query = mysqli_query($koneksi, "SELECT s.*, k.nama_kelas FROM siswa AS s LEFT JOIN kelas AS k ON s.id_kelas = k.id_kelas ORDER BY s.id_siswa DESC");
         $no = 1;
 
         // Periksa apakah ada data
@@ -101,10 +101,10 @@ if(isset($_SESSION['login']) == false){
             while ($data = mysqli_fetch_assoc($query)) {
                 // Ambil data per field
                 $nama   = htmlspecialchars($data['nama_siswa']);
-                $nisn   = htmlspecialchars($data['nisn']);
-                $password = htmlspecialchars($data['password']);
-                $kelas  = htmlspecialchars($data['nama_kelas']);
-                $status = htmlspecialchars($data['status']);
+                $nisn   = htmlspecialchars($data['nisn'] ?? $data['nis'] ?? '-');
+                $password = htmlspecialchars($data['password'] ?? '-');
+                $kelas  = htmlspecialchars($data['nama_kelas'] ?? '-');
+                $status = htmlspecialchars($data['status'] ?? 'Aktif');
         ?>
         <tr>
           <td class="text-center"><?= $no++; ?></td>

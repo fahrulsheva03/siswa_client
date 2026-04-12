@@ -44,9 +44,9 @@ if (isset($_POST['tambah_siswa'])) {
   // ===============================
   // 1. Tambah siswa dulu
   // ===============================
-  $query = "INSERT INTO siswa 
-            (nama_siswa, nisn, kelas, password, status) 
-             VALUES ('$nama', '$nisn', '$kelas', '$password', '$status')";
+   $query = "INSERT INTO siswa 
+            (nama_siswa, nis, nisn, id_kelas, kelas, password, status) 
+             VALUES ('$nama', '$nisn', '$nisn', '$kelas', '$kelas', '$password', '$status')";
 
   if (mysqli_query($koneksi, $query)) {
 
@@ -120,7 +120,9 @@ if (isset($_POST['edit_siswa'])) {
 
   $update = mysqli_query($koneksi, "UPDATE siswa 
     SET nama_siswa='$nama', 
+        nis='$nisn',
         nisn='$nisn', 
+        id_kelas='$kelas',
         kelas='$kelas', 
         status='$status',
         password='$password' 
