@@ -153,18 +153,19 @@ if (isset($_POST['edit_siswa'])) {
 // Tambah data kelas
 if (isset($_POST['tambah_kelas'])) {
   $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
+  $max_siswa = isset($_POST['max_siswa']) ? (int) $_POST['max_siswa'] : 0;
 
-  if (empty($nama)) {
+  if (empty($nama) || $max_siswa < 1) {
     echo "<script>
-                alert('Nama kelas wajib diisi!');
+                alert('Nama kelas dan maksimal siswa wajib diisi!');
                 window.history.back();
               </script>";
     exit;
   }
 
   $query = "INSERT INTO kelas 
-            (nama_kelas) 
-             VALUES ('$nama')";
+            (nama_kelas, max_siswa) 
+             VALUES ('$nama', '$max_siswa')";
 
   if (mysqli_query($koneksi, $query)) {
     echo "<script>
@@ -194,17 +195,19 @@ if (isset($_POST['tambah_kelas'])) {
 if (isset($_POST['edit_kelas'])) {
   $id     = $_POST['id'];
   $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
+  $max_siswa = isset($_POST['max_siswa']) ? (int) $_POST['max_siswa'] : 0;
 
-  if (empty($nama)) {
+  if (empty($nama) || $max_siswa < 1) {
     echo "<script>
-                alert('Nama kelas wajib diisi!');
+                alert('Nama kelas dan maksimal siswa wajib diisi!');
                 window.history.back();
               </script>";
     exit;
   }
 
   $update = mysqli_query($koneksi, "UPDATE kelas 
-    SET nama_kelas='$nama'
+    SET nama_kelas='$nama',
+        max_siswa='$max_siswa'
     WHERE id_kelas='$id'");
 
   if ($update) {

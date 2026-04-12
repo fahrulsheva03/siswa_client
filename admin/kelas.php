@@ -43,6 +43,10 @@ if(isset($_SESSION['login']) == false){
                             <label class="form-label">Nama Kelas</label>
                             <input type="text" name="nama" class="form-control" placeholder="Contoh: X RPL" required>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Maksimal Siswa</label>
+                            <input type="number" name="max_siswa" class="form-control" min="1" placeholder="Contoh: 36" required>
+                        </div>
                     </div>
                     <div class="text-end">
                         <button type="submit" name="tambah_kelas" class="btn btn-custom">
@@ -64,6 +68,8 @@ if(isset($_SESSION['login']) == false){
                             <tr>
                                 <th>No</th>
                                 <th>Nama Kelas</th>
+                                <th>Maksimal Siswa</th>
+                                <th>Jumlah Siswa</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -71,19 +77,52 @@ if(isset($_SESSION['login']) == false){
                         <tbody>
                             <?php
                             // Ambil data dari database
-                            $query = mysqli_query($koneksi, "SELECT id_kelas, nama_kelas FROM kelas ORDER BY id_kelas DESC");
+                            $query = mysqli_query($koneksi, "
+                                SELECT 
+                                    k.id_kelas, 
+                                    k.nama_kelas,
+                                    COALESCE(k.max_siswa, 0) AS max_siswa,
+                                    COALESCE(s.jumlah_siswa, 0) AS jumlah_siswa
+                                FROM kelas AS k
+                                LEFT JOIN (
+                                    SELECT id_kelas, COUNT(*) AS jumlah_siswa
+                                    FROM siswa
+                                    WHERE id_kelas IS NOT NULL
+                                    GROUP BY id_kelas
+                                ) AS s ON s.id_kelas = k.id_kelas
+                                ORDER BY k.id_kelas DESC
+                            ");
                             $no = 1;
                             $nama_tabel = 'kelas';
                             if (mysqli_num_rows($query) > 0) {
                                 while ($data = mysqli_fetch_assoc($query)) {
                                     $id      = $data['id_kelas'];
                                     $nama    = htmlspecialchars($data['nama_kelas']);
+                                    $maxSiswa = (int) $data['max_siswa'];
+                                    $jumlahSiswa = (int) $data['jumlah_siswa'];
                                     ?>
 
                                     <tr>
                                         <td class="text-center"><?= $no++; ?></td>
                                         <td><?= $nama; ?></td>
+                                        <td class="text-center"><?= $maxSiswa; ?></td>
                                         <td class="text-center">
+                                            <?php if ($jumlahSiswa >= $maxSiswa): ?>
+                                                <span class="badge bg-danger"><?= $jumlahSiswa; ?> / <?= $maxSiswa; ?></span>
+                                            <?php elseif ($jumlahSiswa >= ($maxSiswa - 2)): ?>
+                                                <span class="badge bg-warning text-dark"><?= $jumlahSiswa; ?> / <?= $maxSiswa; ?></span>
+                                            <?php else: ?>
+                                                <span class="badge bg-success"><?= $jumlahSiswa; ?> / <?= $maxSiswa; ?></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button"
+                                                    class="btn btn-info btn-sm text-white btn-detail-kelas"
+                                                    data-target-id="detailKelas<?= $id; ?>"
+                                                    aria-expanded="false">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+
                                             <a href="edit/kelas.php?id=<?= $id; ?>" 
                                                class="btn btn-warning btn-sm text-white">
                                                <i class="bi bi-pencil-square"></i>
@@ -96,13 +135,53 @@ if(isset($_SESSION['login']) == false){
                                             </a>
                                         </td>
                                     </tr>
+                                    <tr class="bg-light detail-kelas-row" id="detailKelas<?= $id; ?>" style="display: none;">
+                                        <td colspan="5">
+                                            <div class="p-2">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span><strong>Detail Kelas <?= $nama; ?></strong></span>
+                                                    <span><?= $jumlahSiswa; ?> / <?= $maxSiswa; ?> siswa</span>
+                                                </div>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-sm align-middle mb-0">
+                                                        <thead class="table-light text-center">
+                                                            <tr>
+                                                                <th>No</th>
+                                                                <th>Nama Siswa</th>
+                                                                <th>NIS</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php
+                                                            $queryDetail = mysqli_query($koneksi, "SELECT nama_siswa, nis, nisn FROM siswa WHERE id_kelas = '$id' ORDER BY nama_siswa ASC");
+                                                            $nomorDetail = 1;
+                                                            if ($queryDetail && mysqli_num_rows($queryDetail) > 0) {
+                                                                while ($siswa = mysqli_fetch_assoc($queryDetail)) {
+                                                            ?>
+                                                                    <tr>
+                                                                        <td class="text-center"><?= $nomorDetail++; ?></td>
+                                                                        <td><?= htmlspecialchars($siswa['nama_siswa']); ?></td>
+                                                                        <td><?= htmlspecialchars($siswa['nis'] ?? $siswa['nisn'] ?? '-'); ?></td>
+                                                                    </tr>
+                                                            <?php
+                                                                }
+                                                            } else {
+                                                                echo '<tr><td colspan="3" class="text-center">Belum ada siswa di kelas ini.</td></tr>';
+                                                            }
+                                                            ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
 
                                     <?php
                                 }
                             } else {
                                 echo '
                                 <tr>
-                                    <td colspan="4" class="text-center">Belum ada data kelas.</td>
+                                    <td colspan="5" class="text-center">Belum ada data kelas.</td>
                                 </tr>';
                             }
                             ?>
@@ -114,5 +193,29 @@ if(isset($_SESSION['login']) == false){
         </div>
     </div>
 
+<script>
+document.querySelectorAll('.btn-detail-kelas').forEach(function (button) {
+    button.addEventListener('click', function () {
+        var targetId = this.getAttribute('data-target-id');
+        var targetRow = document.getElementById(targetId);
+        if (!targetRow) {
+            return;
+        }
+
+        var isOpen = targetRow.style.display !== 'none';
+        document.querySelectorAll('.detail-kelas-row').forEach(function (row) {
+            row.style.display = 'none';
+        });
+        document.querySelectorAll('.btn-detail-kelas').forEach(function (btn) {
+            btn.setAttribute('aria-expanded', 'false');
+        });
+
+        if (!isOpen) {
+            targetRow.style.display = 'table-row';
+            this.setAttribute('aria-expanded', 'true');
+        }
+    });
+});
+</script>
 </body>
 </html>

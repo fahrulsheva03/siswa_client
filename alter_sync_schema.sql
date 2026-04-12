@@ -31,6 +31,13 @@ BEGIN
         ALTER TABLE siswa ADD COLUMN status ENUM('Aktif','Nonaktif') DEFAULT 'Aktif' AFTER password;
     END IF;
 
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'kelas' AND COLUMN_NAME = 'max_siswa'
+    ) THEN
+        ALTER TABLE kelas ADD COLUMN max_siswa INT NOT NULL DEFAULT 36 AFTER nama_kelas;
+    END IF;
+
     IF EXISTS (
         SELECT 1 FROM information_schema.COLUMNS
         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'siswa' AND COLUMN_NAME = 'nis'

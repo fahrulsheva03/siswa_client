@@ -64,10 +64,15 @@ if (isset($_GET['id'])) {
                      value="<?= htmlspecialchars($data['nama_kelas']); ?>" required>
             </div>
             <div class="col-md-6">
+              <label class="form-label">Maksimal Siswa</label>
+              <input type="number" name="max_siswa" class="form-control" min="1"
+                     value="<?= isset($data['max_siswa']) ? (int) $data['max_siswa'] : 0; ?>" required>
+            </div>
+            <!-- <div class="col-md-6">
               <label class="form-label">Wali Kelas</label>
               <input type="text" name="wali" class="form-control" 
                      value="<?= htmlspecialchars($data['wali_kelas']); ?>" required>
-            </div>
+            </div> -->
           </div>
 
           <div class="text-end">
