@@ -58,6 +58,7 @@ if ($qr_siswa == "" || $qr !== $qr_siswa) {
 // CEK ABSEN HARI INI
 // =====================================================
 $tgl = date("Y-m-d");
+$waktu_scan = date("Y-m-d H:i:s");
 
 $q2 = mysqli_prepare($koneksi, "
     SELECT id_absensi 
@@ -158,7 +159,7 @@ $q3 = mysqli_prepare($koneksi, "
     (id_siswa, tanggal, waktu_scan, status_kehadiran)
     VALUES (?, ?, ?, ?)
 ");
-mysqli_stmt_bind_param($q3, "isss", $id_siswa, $tgl, $now, $status);
+mysqli_stmt_bind_param($q3, "isss", $id_siswa, $tgl, $waktu_scan, $status);
 
 if (mysqli_stmt_execute($q3)) {
     echo $status; 
