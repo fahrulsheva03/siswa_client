@@ -32,7 +32,11 @@ if (!isset($_POST['qr'])) {
     exit;
 }
 
-$qr = $_POST['qr'];
+$qr = trim($_POST['qr']);
+if ($qr === "") {
+    echo "QR_EMPTY";
+    exit;
+}
 
 // =====================================================
 // AMBIL QR & KELAS SISWA
@@ -89,7 +93,11 @@ $hariMap = [
     "Saturday" => "Sabtu"
 ];
 
-$hariIndo = $hariMap[$hariInggris];
+$hariIndo = $hariMap[$hariInggris] ?? null;
+if ($hariIndo === null) {
+    echo "NO_CLASS";
+    exit;
+}
 
 // Ambil semua jadwal hari ini
 $qJadwal = mysqli_prepare($koneksi, "
