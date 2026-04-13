@@ -19,16 +19,16 @@ $id_siswa = $_SESSION['id_siswa'];
 // Ambil data lengkap siswa dari database
 $stmt = mysqli_prepare($koneksi, "
     SELECT 
-        id_siswa,
-        nisn,
-        nama_siswa,
+        siswa.id_siswa,
+        siswa.nisn,
+        siswa.nama_siswa,
         kelas.nama_kelas,
-        qr_code,
-        created_at,
-        status
+        siswa.qr_code,
+        siswa.created_at,
+        siswa.status
     FROM siswa
     JOIN kelas ON siswa.kelas = kelas.id_kelas
-    WHERE id_siswa = ?
+    WHERE siswa.id_siswa = ?
 ");
 mysqli_stmt_bind_param($stmt, "i", $id_siswa);
 mysqli_stmt_execute($stmt);
