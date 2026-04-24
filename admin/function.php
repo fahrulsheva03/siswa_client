@@ -5,6 +5,7 @@ require '../vendor/autoload.php';
 
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Writer\SvgWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 
@@ -21,7 +22,7 @@ use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 // Contoh penggunaan:
 // - Dipicu ketika form tambah siswa di halaman admin/siswa.php disubmit dengan tombol name="tambah_siswa".
 // Catatan penting:
-// - QR Code disimpan sebagai file PNG dan nama filenya direferensikan di kolom qr_code untuk proses scan absensi.
+// - QR Code disimpan sebagai file PNG/SVG (tergantung dukungan GD) dan nama filenya direferensikan di kolom qr_code.
 // Cek apakah tombol tambah diklik
 if (isset($_POST['tambah_siswa'])) {
 
@@ -85,12 +86,15 @@ if (isset($_POST['tambah_siswa'])) {
       mkdir($qrFolder, 0777, true);
     }
 
-    $qrFilename = "qr_" . $kode_qr . ".png";
+    $isGdEnabled = extension_loaded('gd');
+    $writer = $isGdEnabled ? new PngWriter() : new SvgWriter();
+    $fileExtension = $isGdEnabled ? 'png' : 'svg';
+    $qrFilename = "qr_" . $kode_qr . "." . $fileExtension;
     $qrPath = $qrFolder . $qrFilename;
 
-    // 5. Generate QR Code PNG
+    // 5. Generate QR Code (fallback ke SVG jika GD belum aktif)
     $result = (new Builder())->build(
-      writer: new PngWriter(),
+      writer: $writer,
       data: $kode_qr,
       size: 300,
       margin: 10
