@@ -38,6 +38,54 @@ if ($qr === "") {
     exit;
 }
 
+// Normalisasi input QR dari berbagai sumber:
+// - hasil decode kamera (isi QR: ABSEN-...)
+// - nama file (qr_ABSEN-....png/.svg)
+// - URL gambar penuh (http.../qr_....png?x=1)
+function normalizeQrCandidate(string $value): string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+
+    $value = rawurldecode($value);
+
+    // Jika input berupa URL/path, ambil nama file saja.
+    $path = parse_url($value, PHP_URL_PATH);
+    if (!empty($path)) {
+        $value = basename($path);
+    }
+
+    // Hapus query/fragment sisa yang mungkin terbawa.
+    $value = preg_replace('/[?#].*$/', '', $value);
+    return trim($value);
+}
+
+// Turunkan berbagai bentuk token yang valid dari nilai qr_code di database.
+function buildValidQrTokens(string $storedQr): array
+{
+    $tokens = [];
+    $storedQr = trim($storedQr);
+    if ($storedQr === '') {
+        return $tokens;
+    }
+
+    $tokens[] = $storedQr; // contoh: qr_ABSEN-1-12345.png
+
+    $withoutExt = preg_replace('/\.[a-z0-9]+$/i', '', $storedQr);
+    if (!empty($withoutExt)) {
+        $tokens[] = $withoutExt; // contoh: qr_ABSEN-1-12345
+    }
+
+    $payload = preg_replace('/^qr_/i', '', $withoutExt ?? $storedQr);
+    if (!empty($payload)) {
+        $tokens[] = $payload; // contoh: ABSEN-1-12345 (isi QR kamera)
+    }
+
+    return array_values(array_unique(array_filter($tokens)));
+}
+
 // =====================================================
 // AMBIL QR & KELAS SISWA
 // =====================================================
@@ -53,7 +101,9 @@ mysqli_stmt_fetch($q);
 mysqli_stmt_close($q);
 
 // Validasi QR sesuai akun siswa
-if ($qr_siswa == "" || $qr !== $qr_siswa) {
+$qrInput = normalizeQrCandidate($qr);
+$validTokens = buildValidQrTokens((string) $qr_siswa);
+if (empty($validTokens) || !in_array($qrInput, $validTokens, true)) {
     echo "QR_INVALID";
     exit;
 }
