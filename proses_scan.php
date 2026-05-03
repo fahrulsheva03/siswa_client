@@ -213,7 +213,7 @@ if (!$foundSchedule) {
 // =====================================================
 $q3 = mysqli_prepare($koneksi, "
     INSERT INTO absensi
-    (id_siswa, tanggal, waktu_scan, status_kehadiran)
+    (id_siswa, tanggal, waktu_scan, status)
     VALUES (?, ?, ?, ?)
 ");
 mysqli_stmt_bind_param($q3, "isss", $id_siswa, $tgl, $waktu_scan, $status);

@@ -13,10 +13,10 @@ require 'koneksi.php';
 // - Dipanggil oleh fungsi JavaScript loadData() di admin/absen.php menggunakan XMLHttpRequest POST.
 // Catatan penting:
 // - Query melakukan JOIN ke tabel siswa, kelas, dan jadwal untuk menampilkan informasi lengkap absensi per siswa.
-$tipe    = $_POST['tipe'];
+$tipe = $_POST['tipe'];
 $tanggal = $_POST['tanggal'];
 $idKelas = isset($_POST['id_kelas']) ? $_POST['id_kelas'] : '';
-$mapel   = isset($_POST['mapel']) ? trim($_POST['mapel']) : '';
+$mapel = isset($_POST['mapel']) ? trim($_POST['mapel']) : '';
 
 $where = "";
 
@@ -27,7 +27,7 @@ if ($tipe == "hari") {
 } elseif ($tipe == "minggu") {
     if (!empty($tanggal)) {
         $minggu = date("W", strtotime($tanggal));
-        $tahun  = date("Y", strtotime($tanggal));
+        $tahun = date("Y", strtotime($tanggal));
 
         $where = "WHERE WEEK(a.tanggal, 1) = '$minggu'
                   AND YEAR(a.tanggal) = '$tahun'";
@@ -44,9 +44,9 @@ if ($tipe == "hari") {
 if (!empty($idKelas)) {
     $idKelas = mysqli_real_escape_string($koneksi, $idKelas);
     if ($where === "") {
-        $where = "WHERE s.kelas = '$idKelas'";
+        $where = "WHERE s.id_kelas = '$idKelas'";
     } else {
-        $where .= " AND s.kelas = '$idKelas'";
+        $where .= " AND s.id_kelas = '$idKelas'";
     }
 }
 
@@ -64,18 +64,18 @@ $query = mysqli_query($koneksi, "
         a.id_absensi,
         a.tanggal,
         a.waktu_scan,
-        a.status_kehadiran,
+        a.status,
         s.nama_siswa,
-        s.nisn,
-        s.kelas
+        s.nis,
+        k.nama_kelas
     FROM absensi AS a
     JOIN siswa AS s
       ON s.id_siswa = a.id_siswa
     LEFT JOIN kelas AS k
-       ON s.kelas = k.id_kelas
+       ON s.id_kelas = k.id_kelas
     LEFT JOIN jadwal AS j
        ON j.id_kelas = k.id_kelas
-      AND a.waktu_scan BETWEEN j.jam_mulai AND j.jam_selesai
+      AND a.waktu_scan BETWEEN j.jam_masuk AND j.jam_pulang
     $where
     ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ");
@@ -85,11 +85,11 @@ $no = 1;
 if (mysqli_num_rows($query) > 0) {
     while ($row = mysqli_fetch_assoc($query)) {
 
-        $status = $row['status_kehadiran'];
+        $status = strtolower($row['status']);
 
-        if ($status == "Hadir") {
+        if ($status == "hadir") {
             $badge = "<span class='badge bg-success'>Hadir</span>";
-        } elseif ($status == "Terlambat") {
+        } elseif ($status == "terlambat") {
             $badge = "<span class='badge bg-warning text-dark'>Terlambat</span>";
         } else {
             $badge = "<span class='badge bg-danger'>Alfa</span>";
@@ -99,8 +99,8 @@ if (mysqli_num_rows($query) > 0) {
         <tr>
             <td class='text-center'>{$no}</td>
             <td>{$row['nama_siswa']}</td>
-            <td>{$row['nisn']}</td>
-            <td>{$row['kelas']}</td>
+            <td>{$row['nis']}</td>
+            <td>{$row['nama_kelas']}</td>
             <td class='text-center'>{$row['tanggal']}</td>
             <td class='text-center'>{$row['waktu_scan']}</td>
             <td class='text-center'>{$badge}</td>

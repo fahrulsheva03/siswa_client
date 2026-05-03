@@ -28,17 +28,17 @@ $query = "
     SELECT 
         a.tanggal,
         a.waktu_scan,
-        a.status_kehadiran,
+        a.status,
         j.mata_pelajaran,
         j.hari
     FROM absensi a
     JOIN siswa s 
         ON a.id_siswa = s.id_siswa
     JOIN kelas k
-        ON s.kelas = k.id_kelas
+        ON s.id_kelas = k.id_kelas
     LEFT JOIN jadwal j
         ON j.id_kelas = k.id_kelas
-        AND a.waktu_scan BETWEEN j.jam_mulai AND j.jam_selesai
+        AND a.waktu_scan BETWEEN j.jam_masuk AND j.jam_pulang
     WHERE a.id_siswa = ?
     ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ";
@@ -72,22 +72,22 @@ $result = mysqli_stmt_get_result($stmt);
 
       while ($row = mysqli_fetch_assoc($result)) {
 
-        $hari   = $row['hari'] ?: "-";
-        $mapel  = $row['mata_pelajaran'] ?: "-";
+        $hari = $row['hari'] ?: "-";
+        $mapel = $row['mata_pelajaran'] ?: "-";
 
         $tanggal = date("d-m-Y", strtotime($row['tanggal']));
-        $waktu   = $row['waktu_scan'] ?: "-";
-        $status  = $row['status_kehadiran'];
+        $waktu = $row['waktu_scan'] ?: "-";
+        $status = strtolower($row['status']);
 
-        if ($status == "Hadir") {
+        if ($status == "hadir") {
           $badge = "<span class='badge bg-success'>Hadir</span>";
-          $ket   = "Tepat waktu";
-        } elseif ($status == "Terlambat") {
+          $ket = "Tepat waktu";
+        } elseif ($status == "terlambat") {
           $badge = "<span class='badge bg-warning text-dark'>Terlambat</span>";
-          $ket   = "Siswa datang terlambat";
+          $ket = "Siswa datang terlambat";
         } else {
           $badge = "<span class='badge bg-danger'>Alfa</span>";
-          $ket   = "Tidak hadir";
+          $ket = "Tidak hadir";
         }
 
         echo "

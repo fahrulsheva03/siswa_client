@@ -39,9 +39,9 @@ if ($tipe == "hari" && !empty($tanggal)) {
 if (!empty($idKelas)) {
     $idKelas = mysqli_real_escape_string($koneksi, $idKelas);
     if ($where === "") {
-        $where = "WHERE s.kelas = '$idKelas'";
+        $where = "WHERE s.id_kelas = '$idKelas'";
     } else {
-        $where .= " AND s.kelas = '$idKelas'";
+        $where .= " AND s.id_kelas = '$idKelas'";
     }
 }
 
@@ -49,13 +49,15 @@ $query = mysqli_query($koneksi, "
     SELECT 
         a.tanggal,
         a.waktu_scan,
-        a.status_kehadiran,
+        a.status,
         s.nama_siswa,
-        s.nisn,
-        s.kelas
+        s.nis,
+        k.nama_kelas
     FROM absensi AS a
     JOIN siswa AS s 
         ON s.id_siswa = a.id_siswa
+    LEFT JOIN kelas AS k
+        ON s.id_kelas = k.id_kelas
     $where
     ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ");
@@ -73,7 +75,7 @@ $html = "
 <tr style='background:#eef3ff; text-align:center;'>
     <th>No</th>
     <th>Nama Siswa</th>
-    <th>NISN</th>
+    <th>NIS</th>
     <th>Kelas</th>
     <th>Tanggal</th>
     <th>Waktu Scan</th>
@@ -92,11 +94,11 @@ if (mysqli_num_rows($query) > 0) {
         <tr>
             <td style='text-align:center;'>".$no++."</td>
             <td>".$row['nama_siswa']."</td>
-            <td>".$row['nisn']."</td>
-            <td>".$row['kelas']."</td>
+            <td>".$row['nis']."</td>
+            <td>".$row['nama_kelas']."</td>
             <td style='text-align:center;'>".$row['tanggal']."</td>
             <td style='text-align:center;'>".$row['waktu_scan']."</td>
-            <td style='text-align:center;'>".$row['status_kehadiran']."</td>
+            <td style='text-align:center;'>".ucfirst($row['status'])."</td>
         </tr>
         ";
     }
