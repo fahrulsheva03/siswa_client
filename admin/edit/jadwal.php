@@ -95,7 +95,7 @@ $data = mysqli_fetch_assoc($q);
                             <label class="form-label">Hari</label>
                             <select name="hari" class="form-select" required>
                                 <?php
-                                $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                                $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
                                 foreach ($hariList as $h) {
                                     $selected = ($h == $data['hari']) ? "selected" : "";
                                     echo "<option $selected>$h</option>";

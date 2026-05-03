@@ -5,7 +5,7 @@
 require 'koneksi.php';
 require 'layouts/header.php';
 
-if(isset($_SESSION['login']) == false){
+if (isset($_SESSION['login']) == false) {
     echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
     exit();
 }
@@ -56,13 +56,15 @@ if(isset($_SESSION['login']) == false){
                         <!-- MATA PELAJARAN -->
                         <div class="col-md-4">
                             <label class="form-label">Mata Pelajaran</label>
-                            <input type="text" name="mapel" class="form-control" placeholder="Contoh: Matematika" required>
+                            <input type="text" name="mapel" class="form-control" placeholder="Contoh: Matematika"
+                                required>
                         </div>
 
                         <!-- NAMA GURU -->
                         <div class="col-md-4">
                             <label class="form-label">Nama Guru</label>
-                            <input type="text" name="nama_guru" class="form-control" placeholder="Nama guru pengajar" required>
+                            <input type="text" name="nama_guru" class="form-control" placeholder="Nama guru pengajar"
+                                required>
                         </div>
 
                     </div>
@@ -79,6 +81,7 @@ if(isset($_SESSION['login']) == false){
                                 <option>Kamis</option>
                                 <option>Jumat</option>
                                 <option>Sabtu</option>
+                                <option>Minggu</option>
                             </select>
                         </div>
                     </div>
@@ -112,8 +115,9 @@ if(isset($_SESSION['login']) == false){
 
                 <form method="get" class="row g-2 mb-3">
                     <div class="col-md-4">
-                        <input type="text" name="cari_guru" class="form-control" placeholder="Cari berdasarkan nama guru"
-                               value="<?= isset($_GET['cari_guru']) ? htmlspecialchars($_GET['cari_guru']) : ''; ?>">
+                        <input type="text" name="cari_guru" class="form-control"
+                            placeholder="Cari berdasarkan nama guru"
+                            value="<?= isset($_GET['cari_guru']) ? htmlspecialchars($_GET['cari_guru']) : ''; ?>">
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-outline-primary">Filter</button>
@@ -158,7 +162,7 @@ if(isset($_SESSION['login']) == false){
                                   ON k.id_kelas = j.id_kelas
                                 $filterGuru
                                 ORDER BY 
-                                    FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
+                                    FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'),
                                     jam_mulai ASC
                             ");
 
@@ -166,7 +170,7 @@ if(isset($_SESSION['login']) == false){
 
                             if (mysqli_num_rows($query) > 0) {
                                 while ($row = mysqli_fetch_assoc($query)) {
-                            ?>
+                                    ?>
                                     <tr>
                                         <td class="text-center"><?= $no++; ?></td>
                                         <td><?= htmlspecialchars($row['nama_kelas']); ?></td>
@@ -182,13 +186,12 @@ if(isset($_SESSION['login']) == false){
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
                                             <a href="hapus/delete.php?tabel=jadwal&id=<?= $row['id_jadwal']; ?>"
-                                                class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Hapus jadwal ini?')">
+                                                class="btn btn-danger btn-sm" onclick="return confirm('Hapus jadwal ini?')">
                                                 <i class="bi bi-trash3"></i>
                                             </a>
                                         </td>
                                     </tr>
-                            <?php
+                                    <?php
                                 }
                             } else {
                                 echo "

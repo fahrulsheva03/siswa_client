@@ -42,7 +42,7 @@ $qJadwal = mysqli_prepare($koneksi, "
         nama_guru
     FROM jadwal
     WHERE id_kelas = (SELECT id_kelas FROM kelas WHERE nama_kelas = ?)
-    ORDER BY FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
+    ORDER BY FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'),
              jam_mulai ASC
 ");
 mysqli_stmt_bind_param($qJadwal, "s", $nama_kelas);
@@ -52,13 +52,13 @@ $hasil = mysqli_stmt_get_result($qJadwal);
 $filterHari = isset($_GET['hari']) ? $_GET['hari'] : '';
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 $mapHari = [
-    1 => 'Senin',
-    2 => 'Selasa',
-    3 => 'Rabu',
-    4 => 'Kamis',
-    5 => 'Jumat',
-    6 => 'Sabtu',
-    7 => 'Minggu'
+  1 => 'Senin',
+  2 => 'Selasa',
+  3 => 'Rabu',
+  4 => 'Kamis',
+  5 => 'Jumat',
+  6 => 'Sabtu',
+  7 => 'Minggu'
 ];
 $hariSekarang = $mapHari[(int) date('N')];
 $waktuSekarang = date('H:i:s');
@@ -72,17 +72,17 @@ $waktuSekarang = date('H:i:s');
       <select name="hari" class="form-select">
         <option value="">Semua hari</option>
         <?php
-        $hariList = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         foreach ($hariList as $h) {
-            $selected = ($filterHari === $h) ? 'selected' : '';
-            echo "<option value=\"{$h}\" {$selected}>{$h}</option>";
+          $selected = ($filterHari === $h) ? 'selected' : '';
+          echo "<option value=\"{$h}\" {$selected}>{$h}</option>";
         }
         ?>
       </select>
     </div>
     <div class="col-md-5">
       <input type="text" name="q" class="form-control" placeholder="Cari mata pelajaran atau guru"
-             value="<?= htmlspecialchars($search); ?>">
+        value="<?= htmlspecialchars($search); ?>">
     </div>
     <div class="col-md-3 d-flex justify-content-end gap-2">
       <button type="submit" class="btn btn-primary">Filter</button>
@@ -112,38 +112,44 @@ $waktuSekarang = date('H:i:s');
       $adaDataTampil = false;
 
       while ($row = mysqli_fetch_assoc($hasil)) {
-        $hari   = $row['hari'];
+        $hari = $row['hari'];
         $jamMulai = $row['jam_mulai'];
         $jamSelesai = $row['jam_selesai'];
-        $jam    = $jamMulai . " - " . $jamSelesai;
-        $mapel  = $row['mata_pelajaran'];
-        $guru   = $row['nama_guru'] ?: "-";
-        $kelas  = $nama_kelas;
+        $jam = $jamMulai . " - " . $jamSelesai;
+        $mapel = $row['mata_pelajaran'];
+        $guru = $row['nama_guru'] ?: "-";
+        $kelas = $nama_kelas;
         $ruangan = 'Ruang ' . $nama_kelas;
 
         if ($filterHari !== '' && $hari !== $filterHari) {
-            continue;
+          continue;
         }
 
         if ($search !== '') {
-            $cari = mb_strtolower($search, 'UTF-8');
-            $gabungan = mb_strtolower($mapel . ' ' . $guru . ' ' . $ruangan, 'UTF-8');
-            if (mb_strpos($gabungan, $cari, 0, 'UTF-8') === false) {
-                continue;
-            }
+          $cari = mb_strtolower($search, 'UTF-8');
+          $gabungan = mb_strtolower($mapel . ' ' . $guru . ' ' . $ruangan, 'UTF-8');
+          if (mb_strpos($gabungan, $cari, 0, 'UTF-8') === false) {
+            continue;
+          }
         }
 
         $statusBadge = '';
         $rowClass = '';
-        if ($hari === $hariSekarang && $waktuSekarang >= $jamMulai && $waktuSekarang <= $jamSelesai) {
-            $statusBadge = "<span class='badge bg-success'>Berlangsung</span>";
-            $rowClass = "table-success";
-        } elseif ($hari === $hariSekarang && $waktuSekarang < $jamMulai) {
-            $statusBadge = "<span class='badge bg-info text-dark'>Belum dimulai</span>";
-        } elseif ($hari === $hariSekarang && $waktuSekarang > $jamSelesai) {
-            $statusBadge = "<span class='badge bg-secondary'>Selesai</span>";
+
+        // Konversi ke timestamp untuk perbandingan yang lebih akurat
+        $timeNow = strtotime($waktuSekarang);
+        $timeStart = strtotime($jamMulai);
+        $timeEnd = strtotime($jamSelesai);
+
+        if ($hari === $hariSekarang && $timeNow >= $timeStart && $timeNow <= $timeEnd) {
+          $statusBadge = "<span class='badge bg-success'>Berlangsung</span>";
+          $rowClass = "table-success";
+        } elseif ($hari === $hariSekarang && $timeNow < $timeStart) {
+          $statusBadge = "<span class='badge bg-info text-dark'>Belum dimulai</span>";
+        } elseif ($hari === $hariSekarang && $timeNow > $timeEnd) {
+          $statusBadge = "<span class='badge bg-secondary'>Selesai</span>";
         } else {
-            $statusBadge = "<span class='badge bg-light text-dark'>Hari lain</span>";
+          $statusBadge = "<span class='badge bg-light text-dark'>Hari lain</span>";
         }
 
         $adaDataTampil = true;

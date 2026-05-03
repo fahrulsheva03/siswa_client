@@ -2,8 +2,6 @@
 require 'koneksi.php';
 // session_start();
 
-date_default_timezone_set('Asia/Makassar');
-
 // Fungsi: Memproses data QR yang discan siswa untuk mencatat absensi pada jadwal yang sesuai.
 // Parameter input:
 // - $_SESSION['id_siswa']: identitas siswa yang sedang login dan melakukan scan.
@@ -140,7 +138,8 @@ $hariMap = [
     "Wednesday" => "Rabu",
     "Thursday" => "Kamis",
     "Friday" => "Jumat",
-    "Saturday" => "Sabtu"
+    "Saturday" => "Sabtu",
+    "Sunday" => "Minggu"
 ];
 
 $hariIndo = $hariMap[$hariInggris] ?? null;
