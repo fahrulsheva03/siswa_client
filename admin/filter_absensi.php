@@ -13,10 +13,10 @@ require 'koneksi.php';
 // - Dipanggil oleh fungsi JavaScript loadData() di admin/absen.php menggunakan XMLHttpRequest POST.
 // Catatan penting:
 // - Query melakukan JOIN ke tabel siswa, kelas, dan jadwal untuk menampilkan informasi lengkap absensi per siswa.
-$tipe = $_POST['tipe'];
+$tipe    = $_POST['tipe'];
 $tanggal = $_POST['tanggal'];
 $idKelas = isset($_POST['id_kelas']) ? $_POST['id_kelas'] : '';
-$mapel = isset($_POST['mapel']) ? trim($_POST['mapel']) : '';
+$mapel   = isset($_POST['mapel']) ? trim($_POST['mapel']) : '';
 
 $where = "";
 
@@ -27,7 +27,7 @@ if ($tipe == "hari") {
 } elseif ($tipe == "minggu") {
     if (!empty($tanggal)) {
         $minggu = date("W", strtotime($tanggal));
-        $tahun = date("Y", strtotime($tanggal));
+        $tahun  = date("Y", strtotime($tanggal));
 
         $where = "WHERE WEEK(a.tanggal, 1) = '$minggu'
                   AND YEAR(a.tanggal) = '$tahun'";
