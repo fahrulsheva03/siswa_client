@@ -27,9 +27,9 @@ use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 if (isset($_POST['tambah_siswa'])) {
 
   // Ambil data dari form
-  $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
-  $nisn   = mysqli_real_escape_string($koneksi, $_POST['nisn']);
-  $kelas  = mysqli_real_escape_string($koneksi, $_POST['kelas']);
+  $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
+  $nisn = mysqli_real_escape_string($koneksi, $_POST['nisn']);
+  $kelas = mysqli_real_escape_string($koneksi, $_POST['kelas']);
   $password = mysqli_real_escape_string($koneksi, $_POST['password']);
   $status = mysqli_real_escape_string($koneksi, $_POST['status']);
   $kelasId = (int) $kelas;
@@ -68,7 +68,7 @@ if (isset($_POST['tambah_siswa'])) {
   // ===============================
   // 1. Tambah siswa dulu
   // ===============================
-   $query = "INSERT INTO siswa 
+  $query = "INSERT INTO siswa 
             (nama_siswa, nis, nisn, id_kelas, kelas, password, status) 
              VALUES ('$nama', '$nisn', '$nisn', '$kelasId', '$kelasId', '$password', '$status')";
 
@@ -138,10 +138,10 @@ if (isset($_POST['tambah_siswa'])) {
 // - Perubahan password langsung menimpa nilai lama tanpa proses enkripsi maupun pencatatan riwayat.
 // Edit data siswa
 if (isset($_POST['edit_siswa'])) {
-  $id     = (int) $_POST['id'];
-  $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
-  $nisn   = mysqli_real_escape_string($koneksi, $_POST['nisn']);
-  $kelas  = (int) $_POST['kelas'];
+  $id = (int) $_POST['id'];
+  $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
+  $nisn = mysqli_real_escape_string($koneksi, $_POST['nisn']);
+  $kelas = (int) $_POST['kelas'];
   $status = mysqli_real_escape_string($koneksi, $_POST['status']);
   $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
@@ -223,20 +223,23 @@ if (isset($_POST['edit_siswa'])) {
 // - Validasi hanya memastikan nama kelas tidak kosong, belum ada pengecekan duplikasi nama.
 // Tambah data kelas
 if (isset($_POST['tambah_kelas'])) {
-  $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
+  $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
   $max_siswa = isset($_POST['max_siswa']) ? (int) $_POST['max_siswa'] : 0;
+  $lat = mysqli_real_escape_string($koneksi, $_POST['lat']);
+  $lng = mysqli_real_escape_string($koneksi, $_POST['lng']);
+  $radius = isset($_POST['radius']) ? (int) $_POST['radius'] : 100;
 
-  if (empty($nama) || $max_siswa < 1) {
+  if (empty($nama) || $max_siswa < 1 || empty($lat) || empty($lng)) {
     echo "<script>
-                alert('Nama kelas dan maksimal siswa wajib diisi!');
+                alert('Semua field wajib diisi!');
                 window.history.back();
               </script>";
     exit;
   }
 
   $query = "INSERT INTO kelas 
-            (nama_kelas, max_siswa) 
-             VALUES ('$nama', '$max_siswa')";
+            (nama_kelas, max_siswa, latitude, longitude, radius_meter) 
+             VALUES ('$nama', '$max_siswa', '$lat', '$lng', '$radius')";
 
   if (mysqli_query($koneksi, $query)) {
     echo "<script>
@@ -264,13 +267,16 @@ if (isset($_POST['tambah_kelas'])) {
 // - Hanya kolom nama_kelas yang diubah; kolom lain seperti wali_kelas tidak disentuh di sini.
 // Edit data kelas
 if (isset($_POST['edit_kelas'])) {
-  $id     = $_POST['id'];
-  $nama   = mysqli_real_escape_string($koneksi, $_POST['nama']);
+  $id = $_POST['id'];
+  $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
   $max_siswa = isset($_POST['max_siswa']) ? (int) $_POST['max_siswa'] : 0;
+  $lat = mysqli_real_escape_string($koneksi, $_POST['lat']);
+  $lng = mysqli_real_escape_string($koneksi, $_POST['lng']);
+  $radius = isset($_POST['radius']) ? (int) $_POST['radius'] : 100;
 
-  if (empty($nama) || $max_siswa < 1) {
+  if (empty($nama) || $max_siswa < 1 || empty($lat) || empty($lng)) {
     echo "<script>
-                alert('Nama kelas dan maksimal siswa wajib diisi!');
+                alert('Semua field wajib diisi!');
                 window.history.back();
               </script>";
     exit;
@@ -278,7 +284,10 @@ if (isset($_POST['edit_kelas'])) {
 
   $update = mysqli_query($koneksi, "UPDATE kelas 
     SET nama_kelas='$nama',
-        max_siswa='$max_siswa'
+        max_siswa='$max_siswa',
+        latitude='$lat',
+        longitude='$lng',
+        radius_meter='$radius'
     WHERE id_kelas='$id'");
 
   if ($update) {
@@ -310,48 +319,48 @@ if (isset($_POST['edit_kelas'])) {
 // - Dilakukan validasi bentrok jam antar jadwal di kelas yang sama serta pembatasan satu guru hanya mengajar satu mata pelajaran.
 // =============== TAMBAH JADWAL ==================
 if (isset($_POST['tambah_jadwal'])) {
-    $id_kelas    = $_POST['id_kelas'];
-    $mapel       = $_POST['mapel'];
-    $nama_guru   = mysqli_real_escape_string($koneksi, $_POST['nama_guru']);
-    $hari        = $_POST['hari'];
-    $jam_mulai   = $_POST['jam_mulai'];
-    $jam_selesai = $_POST['jam_selesai'];
+  $id_kelas = $_POST['id_kelas'];
+  $mapel = $_POST['mapel'];
+  $nama_guru = mysqli_real_escape_string($koneksi, $_POST['nama_guru']);
+  $hari = $_POST['hari'];
+  $jam_mulai = $_POST['jam_mulai'];
+  $jam_selesai = $_POST['jam_selesai'];
 
-    if (empty($nama_guru)) {
-        echo "<script>
+  if (empty($nama_guru)) {
+    echo "<script>
                 alert('Nama guru wajib diisi!');
                 window.location.href='jadwal.php';
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // ----------------------------
-    // VALIDASI JAM
-    // ----------------------------
-    if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
-        echo "<script>
+  // ----------------------------
+  // VALIDASI JAM
+  // ----------------------------
+  if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
+    echo "<script>
                 alert('Jam mulai harus lebih kecil dari jam selesai!');
                 window.location.href='jadwal.php';
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // ----------------------------
-    // CEK DUPLIKASI / TABRAKAN JADWAL
-    // ----------------------------
-    /*
-        Kriteria bentrok:
-        --------------------------------------------
-        (jam_mulai_baru < jam_selesai_lama)
-        AND
-        (jam_selesai_baru > jam_mulai_lama)
-        AND
-        (kelas sama)
-        AND
-        (hari sama)
-    */
+  // ----------------------------
+  // CEK DUPLIKASI / TABRAKAN JADWAL
+  // ----------------------------
+  /*
+      Kriteria bentrok:
+      --------------------------------------------
+      (jam_mulai_baru < jam_selesai_lama)
+      AND
+      (jam_selesai_baru > jam_mulai_lama)
+      AND
+      (kelas sama)
+      AND
+      (hari sama)
+  */
 
-    $cek = mysqli_query($koneksi, "
+  $cek = mysqli_query($koneksi, "
         SELECT * 
         FROM jadwal
         WHERE id_kelas = '$id_kelas'
@@ -362,57 +371,57 @@ if (isset($_POST['tambah_jadwal'])) {
           )
     ");
 
-    if (mysqli_num_rows($cek) > 0) {
-        echo "<script>
+  if (mysqli_num_rows($cek) > 0) {
+    echo "<script>
                 alert('Jadwal bentrok! Kelas ini sudah memiliki jadwal di jam tersebut.');
                 window.location.href='jadwal.php';
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // ----------------------------
-    // CEK RELASI 1 GURU : 1 MAPEL
-    // ----------------------------
-    $cekGuru = mysqli_query($koneksi, "
+  // ----------------------------
+  // CEK RELASI 1 GURU : 1 MAPEL
+  // ----------------------------
+  $cekGuru = mysqli_query($koneksi, "
         SELECT DISTINCT mata_pelajaran 
         FROM jadwal
         WHERE nama_guru = '$nama_guru'
         LIMIT 1
     ");
 
-    if ($cekGuru && mysqli_num_rows($cekGuru) > 0) {
-        $rowGuru = mysqli_fetch_assoc($cekGuru);
-        if ($rowGuru['mata_pelajaran'] !== $mapel) {
-            echo "<script>
+  if ($cekGuru && mysqli_num_rows($cekGuru) > 0) {
+    $rowGuru = mysqli_fetch_assoc($cekGuru);
+    if ($rowGuru['mata_pelajaran'] !== $mapel) {
+      echo "<script>
                     alert('Guru ini sudah terdaftar mengajar mata pelajaran \"{$rowGuru['mata_pelajaran']}\". Satu guru hanya boleh mengajar satu mata pelajaran.');
                     window.location.href='jadwal.php';
                   </script>";
-            exit;
-        }
+      exit;
     }
+  }
 
-    // ----------------------------
-    // INSERT JADWAL JIKA VALID
-    // ----------------------------
-    $query = "
+  // ----------------------------
+  // INSERT JADWAL JIKA VALID
+  // ----------------------------
+  $query = "
         INSERT INTO jadwal 
         (id_kelas, mata_pelajaran, nama_guru, hari, jam_mulai, jam_selesai)
         VALUES ('$id_kelas', '$mapel', '$nama_guru', '$hari', '$jam_mulai', '$jam_selesai')
     ";
 
-    if (mysqli_query($koneksi, $query)) {
-        echo "<script>
+  if (mysqli_query($koneksi, $query)) {
+    echo "<script>
                 alert('Jadwal berhasil ditambahkan!');
                 window.location.href='jadwal.php';
               </script>";
-    } else {
-        echo "<script>
+  } else {
+    echo "<script>
                 alert('Gagal menambahkan jadwal: " . mysqli_error($koneksi) . "');
                 window.location.href='jadwal.php';
               </script>";
-    }
+  }
 
-    exit;
+  exit;
 }
 
 // Fungsi: Mengubah jadwal pelajaran yang sudah ada tanpa menambah baris baru.
@@ -433,33 +442,33 @@ if (isset($_POST['tambah_jadwal'])) {
 // =============== EDIT JADWAL ==================
 if (isset($_POST['edit_jadwal'])) {
 
-    $id_jadwal   = $_POST['id_jadwal'];
-    $id_kelas    = $_POST['id_kelas'];
-    $mapel       = $_POST['mapel'];
-    $nama_guru   = mysqli_real_escape_string($koneksi, $_POST['nama_guru']);
-    $hari        = $_POST['hari'];
-    $jam_mulai   = $_POST['jam_mulai'];
-    $jam_selesai = $_POST['jam_selesai'];
+  $id_jadwal = $_POST['id_jadwal'];
+  $id_kelas = $_POST['id_kelas'];
+  $mapel = $_POST['mapel'];
+  $nama_guru = mysqli_real_escape_string($koneksi, $_POST['nama_guru']);
+  $hari = $_POST['hari'];
+  $jam_mulai = $_POST['jam_mulai'];
+  $jam_selesai = $_POST['jam_selesai'];
 
-    if (empty($nama_guru)) {
-        echo "<script>
+  if (empty($nama_guru)) {
+    echo "<script>
                 alert('Nama guru wajib diisi!');
                 window.location.href='edit/jadwal.php?id=$id_jadwal';
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // --- VALIDASI JAM ---
-    if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
-        echo "<script>
+  // --- VALIDASI JAM ---
+  if (strtotime($jam_mulai) >= strtotime($jam_selesai)) {
+    echo "<script>
                 alert('Jam mulai harus lebih kecil dari jam selesai!');
                 window.location.href='edit/jadwal.php?id=$id_jadwal';
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // --- CEK DUPLIKASI / BENTROK ---
-    $cek = mysqli_query($koneksi, "
+  // --- CEK DUPLIKASI / BENTROK ---
+  $cek = mysqli_query($koneksi, "
         SELECT * 
         FROM jadwal
         WHERE id_kelas = '$id_kelas'
@@ -471,18 +480,18 @@ if (isset($_POST['edit_jadwal'])) {
           )
     ");
 
-    if (mysqli_num_rows($cek) > 0) {
-        echo "<script>
+  if (mysqli_num_rows($cek) > 0) {
+    echo "<script>
                 alert('Jadwal bentrok! Silahkan cek jam kelas lain.');
                 window.location.href='edit/jadwal.php?id=$id_jadwal';
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // ----------------------------
-    // CEK RELASI 1 GURU : 1 MAPEL (EDIT)
-    // ----------------------------
-    $cekGuru = mysqli_query($koneksi, "
+  // ----------------------------
+  // CEK RELASI 1 GURU : 1 MAPEL (EDIT)
+  // ----------------------------
+  $cekGuru = mysqli_query($koneksi, "
         SELECT DISTINCT mata_pelajaran 
         FROM jadwal
         WHERE nama_guru = '$nama_guru'
@@ -490,19 +499,19 @@ if (isset($_POST['edit_jadwal'])) {
         LIMIT 1
     ");
 
-    if ($cekGuru && mysqli_num_rows($cekGuru) > 0) {
-        $rowGuru = mysqli_fetch_assoc($cekGuru);
-        if ($rowGuru['mata_pelajaran'] !== $mapel) {
-            echo "<script>
+  if ($cekGuru && mysqli_num_rows($cekGuru) > 0) {
+    $rowGuru = mysqli_fetch_assoc($cekGuru);
+    if ($rowGuru['mata_pelajaran'] !== $mapel) {
+      echo "<script>
                     alert('Guru ini sudah terdaftar mengajar mata pelajaran \"{$rowGuru['mata_pelajaran']}\". Satu guru hanya boleh mengajar satu mata pelajaran.');
                     window.location.href='edit/jadwal.php?id=$id_jadwal';
                   </script>";
-            exit;
-        }
+      exit;
     }
+  }
 
-    // --- UPDATE JADWAL ---
-    mysqli_query($koneksi, "
+  // --- UPDATE JADWAL ---
+  mysqli_query($koneksi, "
         UPDATE jadwal SET 
             id_kelas = '$id_kelas',
             mata_pelajaran = '$mapel',
@@ -513,11 +522,11 @@ if (isset($_POST['edit_jadwal'])) {
         WHERE id_jadwal = '$id_jadwal'
     ");
 
-    echo "<script>
+  echo "<script>
             alert('Jadwal berhasil diperbarui!');
             window.location.href='jadwal.php';
           </script>";
-    exit;
+  exit;
 }
 
 // Fungsi: Mengubah data absensi yang sudah tercatat, seperti tanggal, jam scan, atau status kehadiran.
@@ -534,29 +543,29 @@ if (isset($_POST['edit_jadwal'])) {
 // - Status kehadiran dibatasi hanya ke nilai yang ada di array $allowedStatus untuk mencegah input tidak valid.
 // =============== EDIT ABSENSI ==================
 if (isset($_POST['edit_absensi'])) {
-    $id_absensi = isset($_POST['id_absensi']) ? (int)$_POST['id_absensi'] : 0;
-    $tanggal    = mysqli_real_escape_string($koneksi, $_POST['tanggal']);
-    $waktu      = mysqli_real_escape_string($koneksi, $_POST['waktu_scan']);
-    $status     = mysqli_real_escape_string($koneksi, $_POST['status']);
+  $id_absensi = isset($_POST['id_absensi']) ? (int) $_POST['id_absensi'] : 0;
+  $tanggal = mysqli_real_escape_string($koneksi, $_POST['tanggal']);
+  $waktu = mysqli_real_escape_string($koneksi, $_POST['waktu_scan']);
+  $status = mysqli_real_escape_string($koneksi, $_POST['status']);
 
-    if (empty($id_absensi) || empty($tanggal) || empty($waktu) || empty($status)) {
-        echo "<script>
+  if (empty($id_absensi) || empty($tanggal) || empty($waktu) || empty($status)) {
+    echo "<script>
                 alert('Semua field wajib diisi!');
                 window.history.back();
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    $allowedStatus = ['Hadir', 'Terlambat', 'Alfa'];
-    if (!in_array($status, $allowedStatus, true)) {
-        echo "<script>
+  $allowedStatus = ['Hadir', 'Terlambat', 'Alfa'];
+  if (!in_array($status, $allowedStatus, true)) {
+    echo "<script>
                 alert('Status kehadiran tidak valid!');
                 window.history.back();
               </script>";
-        exit;
-    }
+    exit;
+  }
 
-    $update = mysqli_query($koneksi, "
+  $update = mysqli_query($koneksi, "
         UPDATE absensi SET
             tanggal = '$tanggal',
             waktu_scan = '$waktu',
@@ -564,17 +573,17 @@ if (isset($_POST['edit_absensi'])) {
         WHERE id_absensi = '$id_absensi'
     ");
 
-    if ($update) {
-        echo "<script>
+  if ($update) {
+    echo "<script>
                 alert('Data absensi berhasil diperbarui!');
                 window.location.href='absen.php';
               </script>";
-    } else {
-        echo "<script>
+  } else {
+    echo "<script>
                 alert('Gagal memperbarui data absensi!');
                 window.history.back();
               </script>";
-    }
-    exit;
+  }
+  exit;
 }
 

@@ -39,13 +39,27 @@ if(isset($_SESSION['login']) == false){
 
                 <form action="function.php" method="post">
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Nama Kelas</label>
                             <input type="text" name="nama" class="form-control" placeholder="Contoh: X RPL" required>
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Latitude Sekolah</label>
+                            <input type="text" name="lat" class="form-control" placeholder="Contoh: -5.1476" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Longitude Sekolah</label>
+                            <input type="text" name="lng" class="form-control" placeholder="Contoh: 119.4327" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Maksimal Siswa</label>
                             <input type="number" name="max_siswa" class="form-control" min="1" placeholder="Contoh: 36" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Radius Absen (Meter)</label>
+                            <input type="number" name="radius" class="form-control" min="10" placeholder="Contoh: 100" value="100" required>
                         </div>
                     </div>
                     <div class="text-end">

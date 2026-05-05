@@ -58,21 +58,34 @@ if (isset($_GET['id'])) {
           <input type="hidden" name="id" value="<?= $data['id_kelas']; ?>">
 
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label">Nama Kelas</label>
               <input type="text" name="nama" class="form-control" 
                      value="<?= htmlspecialchars($data['nama_kelas']); ?>" required>
             </div>
+            <div class="col-md-4">
+              <label class="form-label">Latitude Sekolah</label>
+              <input type="text" name="lat" class="form-control" 
+                     value="<?= htmlspecialchars($data['latitude'] ?? '-5.1476'); ?>" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Longitude Sekolah</label>
+              <input type="text" name="lng" class="form-control" 
+                     value="<?= htmlspecialchars($data['longitude'] ?? '119.4327'); ?>" required>
+            </div>
+          </div>
+
+          <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Maksimal Siswa</label>
               <input type="number" name="max_siswa" class="form-control" min="1"
                      value="<?= isset($data['max_siswa']) ? (int) $data['max_siswa'] : 0; ?>" required>
             </div>
-            <!-- <div class="col-md-6">
-              <label class="form-label">Wali Kelas</label>
-              <input type="text" name="wali" class="form-control" 
-                     value="<?= htmlspecialchars($data['wali_kelas']); ?>" required>
-            </div> -->
+            <div class="col-md-6">
+              <label class="form-label">Radius Absen (Meter)</label>
+              <input type="number" name="radius" class="form-control" min="10"
+                     value="<?= isset($data['radius_meter']) ? (int) $data['radius_meter'] : 100; ?>" required>
+            </div>
           </div>
 
           <div class="text-end">

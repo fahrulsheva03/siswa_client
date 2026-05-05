@@ -88,15 +88,47 @@ function buildValidQrTokens(string $storedQr): array
 // AMBIL QR & KELAS SISWA
 // =====================================================
 $q = mysqli_prepare($koneksi, "
-    SELECT qr_code, kelas 
-    FROM siswa 
-    WHERE id_siswa = ?
+    SELECT s.qr_code, s.id_kelas, k.latitude, k.longitude, k.radius_meter
+    FROM siswa s
+    JOIN kelas k ON s.id_kelas = k.id_kelas
+    WHERE s.id_siswa = ?
 ");
 mysqli_stmt_bind_param($q, "i", $id_siswa);
 mysqli_stmt_execute($q);
-mysqli_stmt_bind_result($q, $qr_siswa, $kelas_siswa);
+mysqli_stmt_bind_result($q, $qr_siswa, $kelas_siswa, $targetLat, $targetLng, $targetRadius);
 mysqli_stmt_fetch($q);
 mysqli_stmt_close($q);
+
+// =====================================================
+// VALIDASI LOKASI GPS (Radius)
+// =====================================================
+$userLat = isset($_POST['lat']) ? $_POST['lat'] : null;
+$userLng = isset($_POST['lng']) ? $_POST['lng'] : null;
+
+if ($userLat === "null" || $userLng === "null" || $userLat === null || $userLng === null) {
+    echo "GPS_REQUIRED";
+    exit;
+}
+
+// Fungsi Haversine untuk menghitung jarak antara dua titik koordinat (dalam meter)
+function getDistance($lat1, $lng1, $lat2, $lng2)
+{
+    $earthRadius = 6371000; // Radius bumi dalam meter
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLng = deg2rad($lng2 - $lng1);
+    $a = sin($dLat / 2) * sin($dLat / 2) +
+        cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+        sin($dLng / 2) * sin($dLng / 2);
+    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    return $earthRadius * $c;
+}
+
+$distance = getDistance((float) $userLat, (float) $userLng, (float) $targetLat, (float) $targetLng);
+
+if ($distance > (int) $targetRadius) {
+    echo "OUT_OF_RANGE";
+    exit;
+}
 
 // Validasi QR sesuai akun siswa
 $qrInput = normalizeQrCandidate($qr);
@@ -204,7 +236,7 @@ mysqli_stmt_close($qJadwal);
 
 // Jika tidak ada mapel yang cocok → Alfa
 if (!$foundSchedule) {
-    echo "NO_CLASS"; 
+    echo "NO_CLASS";
     exit;
 }
 
@@ -219,7 +251,7 @@ $q3 = mysqli_prepare($koneksi, "
 mysqli_stmt_bind_param($q3, "isss", $id_siswa, $tgl, $waktu_scan, $status);
 
 if (mysqli_stmt_execute($q3)) {
-    echo $status; 
+    echo $status;
 } else {
     echo "ERROR";
 }

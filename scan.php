@@ -18,43 +18,66 @@ if (!isset($_SESSION['id_siswa'])) {
           </script>";
 }
 
+$id_siswa = $_SESSION['id_siswa'];
+$qKelas = mysqli_query($koneksi, "
+    SELECT k.latitude, k.longitude, k.radius_meter 
+    FROM siswa s 
+    JOIN kelas k ON s.id_kelas = k.id_kelas 
+    WHERE s.id_siswa = '$id_siswa'
+");
+$lokasiSekolah = mysqli_fetch_assoc($qKelas);
+
 include 'includes/header.php';
 include 'includes/navbar.php';
 ?>
 
-<div class="container mt-5 text-center">
-  <h3 class="fw-bold mb-4">Scan QR Code untuk Absensi</h3>
+<div class="container mt-5">
+  <div class="row">
+    <!-- Kolom Kiri: Scanner -->
+    <div class="col-lg-5 text-center mb-4">
+      <h3 class="fw-bold mb-4">Scan QR Absensi</h3>
+      <div class="card p-4 shadow-sm border-0">
+        <!-- Info Lokasi GPS (Selalu Tampil) -->
+        <div id="gpsStatus" class="alert alert-secondary small mb-3 py-2">
+          <i class="bi bi-geo-alt-fill me-1"></i> Mendeteksi lokasi GPS...
+        </div>
 
-  <div class="card mx-auto p-4 shadow" style="max-width:450px;">
+        <!-- Container Scanner: Disembunyikan jika di luar radius -->
+        <div id="scannerContainer" style="display: none;">
+          <div id="reader" style="width:100%;"></div>
+          <div id="scanInfo" class="mt-2 text-muted small">Mempersiapkan kamera...</div>
+          <div id="status" class="mt-3 fw-bold"></div>
+          <hr>
+          <h5 class="fw-bold mb-3 small">Atau Tempel URL QR</h5>
+          <input type="text" id="qrUrlInput" class="form-control form-control-sm mb-2" placeholder="Tempel URL gambar QR">
+          <button class="btn btn-primary btn-sm w-100" onclick="submitQrUrl()">Gunakan URL</button>
+          <div id="urlStatus" class="mt-3 fw-bold"></div>
+        </div>
 
-    <!-- Scanner Kamera -->
-    <div id="reader" style="width:100%;"></div>
-    <div id="scanInfo" class="mt-2 text-muted small">Mempersiapkan kamera...</div>
-    <div id="status" class="mt-3 fw-bold"></div>
-    <div class="alert alert-light text-start small mt-3 mb-0">
-      <b>Keterangan realtime scan:</b><br>
-      1. Arahkan kamera ke QR dari layar HP sampai fokus.<br>
-      2. Tampilan kamera dibuat normal (tidak mirror/terbalik).<br>
-      3. Area scan otomatis difokuskan ke tengah untuk bantu kondisi redup/silau.<br>
-      4. QR yang terlalu kecil akan difilter agar tidak salah baca.<br>
-      5. Sistem otomatis membaca QR tanpa klik tombol.<br>
-      6. Jika QR sama terbaca berulang, sistem memberi jeda singkat agar data tidak dobel.<br>
-      7. Hasil absensi tampil langsung di bawah scanner.
+        <!-- Pesan Peringatan: Tampil jika di luar radius -->
+        <div id="outOfRangeMessage" class="py-5">
+          <i class="bi bi-geo-fill text-danger mb-3" style="font-size: 3rem;"></i>
+          <h5 class="fw-bold text-danger">Di Luar Radius</h5>
+          <p class="text-muted small">Silakan mendekat ke area universitas untuk melakukan absen.</p>
+          <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        </div>
+      </div>
     </div>
 
-    <hr>
-
-    <!-- Input URL QR -->
-    <h5 class="fw-bold mb-3">Atau Tempel URL Gambar QR</h5>
-
-    <input type="text" id="qrUrlInput" class="form-control mb-2" placeholder="Tempel URL gambar QR di sini">
-
-    <button class="btn btn-primary w-100" onclick="submitQrUrl()">
-      Gunakan QR dari URL
-    </button>
-
-    <div id="urlStatus" class="mt-3 fw-bold"></div>
-
+    <!-- Kolom Kanan: Peta Lokasi -->
+    <div class="col-lg-7">
+      <h3 class="fw-bold mb-4 text-center text-lg-start">Lokasi Anda</h3>
+      <div class="card shadow-sm border-0 overflow-hidden">
+        <div id="map" style="height: 500px; width: 100%;"></div>
+        <div class="card-footer bg-white small py-2">
+          <div class="d-flex justify-content-around">
+            <span><i class="bi bi-circle-fill text-danger"></i> Lokasi Universitas</span>
+            <span><i class="bi bi-circle-fill text-primary"></i> Lokasi Anda</span>
+            <span><i class="bi bi-circle text-success"></i> Radius Absen</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -74,6 +97,8 @@ include 'includes/navbar.php';
 
 <!-- Library QR scanner -->
 <script src="https://unpkg.com/html5-qrcode"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
   let isProcessing = false;
@@ -81,9 +106,109 @@ include 'includes/navbar.php';
   let lastScanAt = 0;
   let scanErrorCount = 0;
   let strictSizeFilter = true;
+  let userLat = null;
+  let userLng = null;
+  let isWithinRange = false;
+
+  const targetLat = <?= $lokasiSekolah['latitude'] ?? '0' ?>;
+  const targetLng = <?= $lokasiSekolah['longitude'] ?? '0' ?>;
+  const targetRadius = <?= $lokasiSekolah['radius_meter'] ?? '100' ?>;
+
+  // Inisialisasi Peta
+  const map = L.map('map').setView([targetLat, targetLng], 17);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Marker Universitas (Tetap)
+  const schoolIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2231/2231533.png',
+    iconSize: [40, 40],
+    iconAnchor: [20, 40]
+  });
+  L.marker([targetLat, targetLng], { icon: schoolIcon }).addTo(map)
+    .bindPopup("<b>Titik Universitas</b>").openPopup();
+
+  // Lingkaran Radius
+  L.circle([targetLat, targetLng], {
+    color: 'green',
+    fillColor: '#28a745',
+    fillOpacity: 0.2,
+    radius: targetRadius
+  }).addTo(map);
+
+  // Marker Siswa (Updateable)
+  let userMarker = null;
+
   const SCAN_COOLDOWN_MS = 2000;
   const MIN_QR_EDGE_PX = 38;
   const MIN_QR_AREA_PX = 1300;
+
+  // Mendapatkan lokasi GPS secara berkala
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          userLat = position.coords.latitude;
+          userLng = position.coords.longitude;
+
+          // Update Marker Siswa di Peta
+          if (userMarker) {
+            userMarker.setLatLng([userLat, userLng]);
+          } else {
+            userMarker = L.marker([userLat, userLng]).addTo(map)
+              .bindPopup("<b>Lokasi Anda</b>").openPopup();
+          }
+
+          // Hitung jarak ke sekolah
+          const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
+          isWithinRange = distance <= targetRadius;
+
+          const gpsBox = document.getElementById("gpsStatus");
+          const scannerBox = document.getElementById("scannerContainer");
+          const messageBox = document.getElementById("outOfRangeMessage");
+
+          if (isWithinRange) {
+            gpsBox.className = "alert alert-success small mb-3 py-2";
+            gpsBox.innerHTML = `<i class="bi bi-geo-alt-fill me-1"></i> Terdeteksi di Radius (${Math.round(distance)}m)`;
+
+            // Tampilkan scanner, sembunyikan pesan
+            scannerBox.style.display = "block";
+            messageBox.style.display = "none";
+          } else {
+            gpsBox.className = "alert alert-warning small mb-3 py-2";
+            gpsBox.innerHTML = `<i class="bi bi-geo-alt-fill me-1"></i> Di luar Radius (${Math.round(distance)}m / Max ${targetRadius}m)`;
+
+            // Sembunyikan scanner, tampilkan pesan
+            scannerBox.style.display = "none";
+            messageBox.style.display = "block";
+          }
+        },
+        (error) => {
+          document.getElementById("gpsStatus").className = "alert alert-danger small mb-3 py-2";
+          document.getElementById("gpsStatus").innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Izin GPS ditolak/tidak aktif`;
+          isWithinRange = false;
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      document.getElementById("gpsStatus").innerHTML = "Browser tidak mendukung GPS";
+    }
+  }
+
+  // Fungsi Haversine di sisi klien
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Radius bumi dalam meter
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  getLocation();
 
   // Menampilkan info realtime scanner agar pengguna tahu status kamera/proses.
   function setScanInfo(message, colorClass = "text-muted") {
@@ -157,6 +282,13 @@ include 'includes/navbar.php';
 
     if (!qrText) return;
     if (isProcessing) return;
+
+    // VALIDASI RADIUS SISI KLIEN
+    if (!isWithinRange) {
+      setScanInfo("Gagal: Anda berada di luar radius lokasi sekolah!", "text-danger");
+      return;
+    }
+
     if (strictSizeFilter && !isQrSizeValid(decodedResult)) {
       setScanInfo("QR terdeteksi tapi kecil. Dekatkan HP sedikit atau naikkan brightness layar.", "text-warning");
       return;
@@ -193,16 +325,16 @@ include 'includes/navbar.php';
 
   let html5QrcodeScanner = new Html5QrcodeScanner(
     "reader", {
-      fps: 20,
-      qrbox: getAdaptiveQrBox(),
-      videoConstraints: {
-        facingMode: {
-          ideal: "environment"
-        }
-      },
-      disableFlip: true,
-      rememberLastUsedCamera: false
+    fps: 20,
+    qrbox: getAdaptiveQrBox(),
+    videoConstraints: {
+      facingMode: {
+        ideal: "environment"
+      }
     },
+    disableFlip: true,
+    rememberLastUsedCamera: false
+  },
     false
   );
   html5QrcodeScanner.render(onScanSuccess, onScanError);
@@ -233,10 +365,10 @@ include 'includes/navbar.php';
   // Cek dukungan dan izin kamera agar pesan error lebih jelas.
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment"
-        }
-      })
+      video: {
+        facingMode: "environment"
+      }
+    })
       .then((stream) => {
         setScanInfo("Kamera siap. Menunggu QR...", "text-success");
         stream.getTracks().forEach(track => track.stop());
@@ -271,6 +403,10 @@ include 'includes/navbar.php';
       box.innerHTML = `<div class='alert alert-warning'>Terlambat — Tapi absensi tetap direkam.</div>`;
     } else if (response === "Alfa") {
       box.innerHTML = `<div class='alert alert-danger'>Alfa — Anda absen di luar waktu pelajaran.</div>`;
+    } else if (response === "OUT_OF_RANGE") {
+      box.innerHTML = `<div class='alert alert-danger'>Gagal! Anda berada di luar radius sekolah.</div>`;
+    } else if (response === "GPS_REQUIRED") {
+      box.innerHTML = `<div class='alert alert-danger'>Gagal! Lokasi GPS tidak terdeteksi.</div>`;
     } else if (response === "ALREADY") {
       box.innerHTML = `<div class='alert alert-warning'>Anda sudah absen hari ini!</div>`;
     } else if (response === "QR_INVALID") {
@@ -309,12 +445,14 @@ include 'includes/navbar.php';
     setScanInfo("QR terdeteksi. Mengirim data ke server...", "text-primary");
 
     fetch("proses_scan.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "qr=" + encodeURIComponent(qrValue)
-      })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "qr=" + encodeURIComponent(qrValue) +
+        "&lat=" + userLat +
+        "&lng=" + userLng
+    })
       .then(res => res.text())
       .then(response => {
 
@@ -349,6 +487,12 @@ include 'includes/navbar.php';
 
     box.innerHTML = "";
 
+    // VALIDASI RADIUS SISI KLIEN
+    if (!isWithinRange) {
+      box.innerHTML = "<div class='alert alert-danger'>Gagal: Anda berada di luar radius lokasi sekolah!</div>";
+      return;
+    }
+
     // VALIDASI KOSONG
     if (url === "") {
       box.innerHTML = "<div class='alert alert-danger'>URL tidak boleh kosong!</div>";
@@ -366,12 +510,14 @@ include 'includes/navbar.php';
     box.innerHTML = "<div class='alert alert-primary'>Memproses QR dari URL...</div>";
 
     fetch("proses_scan.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "qr=" + encodeURIComponent(qrValue)
-      })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "qr=" + encodeURIComponent(qrValue) +
+        "&lat=" + userLat +
+        "&lng=" + userLng
+    })
       .then(res => res.text())
       .then(response => {
 
