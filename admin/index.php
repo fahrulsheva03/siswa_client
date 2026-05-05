@@ -110,6 +110,17 @@ $queryRiwayat = mysqli_query($koneksi, "
   LEFT JOIN jadwal j
     ON j.id_kelas = k.id_kelas
     AND TIME(a.waktu_scan) BETWEEN j.jam_mulai AND j.jam_selesai
+    AND j.hari = (
+        CASE DAYOFWEEK(a.tanggal)
+            WHEN 1 THEN 'Minggu'
+            WHEN 2 THEN 'Senin'
+            WHEN 3 THEN 'Selasa'
+            WHEN 4 THEN 'Rabu'
+            WHEN 5 THEN 'Kamis'
+            WHEN 6 THEN 'Jumat'
+            WHEN 7 THEN 'Sabtu'
+        END
+    )
   ORDER BY a.id_absensi DESC
   LIMIT 10
 ");

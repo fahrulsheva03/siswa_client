@@ -75,7 +75,18 @@ $query = mysqli_query($koneksi, "
        ON s.id_kelas = k.id_kelas
     LEFT JOIN jadwal AS j
        ON j.id_kelas = k.id_kelas
-      AND a.waktu_scan BETWEEN j.jam_masuk AND j.jam_pulang
+      AND TIME(a.waktu_scan) BETWEEN j.jam_mulai AND j.jam_selesai
+      AND j.hari = (
+          CASE DAYOFWEEK(a.tanggal)
+              WHEN 1 THEN 'Minggu'
+              WHEN 2 THEN 'Senin'
+              WHEN 3 THEN 'Selasa'
+              WHEN 4 THEN 'Rabu'
+              WHEN 5 THEN 'Kamis'
+              WHEN 6 THEN 'Jumat'
+              WHEN 7 THEN 'Sabtu'
+          END
+      )
     $where
     ORDER BY a.tanggal DESC, a.waktu_scan DESC
 ");
