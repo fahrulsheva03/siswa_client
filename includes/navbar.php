@@ -17,12 +17,12 @@
         <li class="nav-item"><a class="nav-link" href="jadwal.php">🕓 Jadwal</a></li>
         <li class="nav-item"><a class="nav-link" href="profil.php">👤 Profil</a></li>
 
-        <?php if (isset($_SESSION['login'])): ?>
-          <!-- Jika sudah login -->
+        <?php if (isset($_SESSION['login_siswa'])): ?>
+          <!-- Jika sudah login sebagai siswa -->
           <li class="nav-item"><a class="nav-link" href="logout.php">🚪 Logout</a></li>
         <?php else: ?>
           <!-- Jika belum login -->
-          <li class="nav-item"><a class="nav-link" href="login.php">🗝️ Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="login_siswa.php">🗝️ Login</a></li>
         <?php endif; ?>
       </ul>
     </div>
